@@ -16,7 +16,7 @@ A music guessing game with **Jellyfin** and **Spotify** integration. Guess the y
 ### Soft Dependencies (Optional)
 - **Music Source** — at least one of:
   - Jellyfin server with API access
-  - Spotify account (Premium)
+  - Spotify Premium account
 - **Last.fm API key** — for enhanced metadata (covers, lyrics, tags)
 
 ## 🚀 Quick Start
@@ -79,6 +79,7 @@ Pick a random song by genre and time period. Perfect for discovering music or pa
 **Filters:**
 - Genre (e.g. "Rock", "Pop", "Game")
 - Min/Max year (e.g. 1990–1999)
+- Artist (e.g. Soundgarden)
 
 ### 🧠 Guess the Year
 Guess a song’s release year! You have 3 lives and a running timer.
@@ -181,12 +182,12 @@ HitIT/
 
 ## ⚠️ Spotify Limitations
 
-Spotify’s Web API now rarely provides usable 30s `preview_url` values; most tracks return `null`. Reliable full-length playback requires the Web Playback SDK and a Premium account (scopes: `streaming`, `user-modify-playback-state`). Free accounts are effectively limited to metadata (title, artist, year) and occasional previews. For a consistent experience:
+**Spotify Premium required!** Spotify's Web API rarely provides usable 30s `preview_url` values; most tracks return `null`. Reliable full-length playback requires the Web Playback SDK and a **Spotify Premium account** (scopes: `streaming`, `user-modify-playback-state`). For a consistent experience:
 - Prefer Jellyfin for full-length local playback
-- Offer Spotify only as an optional metadata/Premium playback source
-- Consider disabling preview fallback if user frustration is high (many silent results)
+- Use Spotify only with Premium subscription
+- Without Premium, most tracks will have no audio
 
-If you plan Premium playback, integrate the Web Playback SDK rather than relying on `preview_url`.
+The app uses the Web Playback SDK for Premium accounts.
 
 ## 🛠️ Development
 

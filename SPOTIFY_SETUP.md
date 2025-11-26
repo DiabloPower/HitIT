@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- Spotify account (Free or Premium)
+- **Spotify Premium account** (required for playback)
 - Browser (Chrome, Firefox, Safari, Edge)
 
 ## 1. Create a Spotify Developer App
@@ -108,13 +108,16 @@ npx http-server -p 8080 -a 127.0.0.1
 - Clear or loosen filters
 - Try different genre names (e.g., lowercase "rock")
 
-### ❌ Audio doesn’t play (Spotify Free)
+### ❌ Audio doesn't play
 
-**Cause:** many tracks have no preview anymore
+**Causes:**
+- Spotify Premium account required for playback
+- Web Playback SDK not initialized
 
 **Fix:** 
-- Expected behavior when a track has no preview
-- Use Spotify Pro or Jellyfin for full-length playback
+- Ensure you have an active Spotify Premium subscription
+- Reconnect with Spotify in Settings
+- For full control, use Jellyfin instead
 
 ## Notes
 
