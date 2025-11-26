@@ -1398,15 +1398,15 @@ function updateMpArrowVisibility() {
 }
 
 // Multiplayer pre-start panel functions
-function renderMpPanelNames() {
+function renderMpPanelNames(useStoredRosterCount = false) {
   const container = document.getElementById('mpPanelNames');
   if (!container) return;
   const countEl = document.getElementById('mpPanelPlayerCount');
   // load stored roster if available
   const stored = loadMpRoster() || [];
   let count = Math.max(2, Math.min(6, parseInt(countEl?.value, 10) || 2));
-  if (stored.length > 0) {
-    // prefer stored roster length when present
+  if (stored.length > 0 && useStoredRosterCount) {
+    // Only use stored roster length on initial panel load, not on every input change
     count = Math.max(2, Math.min(6, stored.length));
     if (countEl) countEl.value = count;
   }
@@ -1495,7 +1495,12 @@ function wireRosterManager() {
     const chosen = sel.value.trim(); if (!chosen) return;
     const all = loadAllRosters(); const data = all[chosen]; if (!data) return;
     mpPlayers = data.map((p, idx) => ({ id: idx, name: p.name, color: p.color, deck: [] }));
-    mpCurrentPlayerIndex = 0; renderMpPanelNames(); showToast(t('messages.rosterLoaded'));
+    mpCurrentPlayerIndex = 0; 
+    // Update player count input to match loaded roster
+    const countEl = document.getElementById('mpPanelPlayerCount');
+    if (countEl) countEl.value = data.length;
+    renderMpPanelNames(false); 
+    showToast(t('messages.rosterLoaded'));
   };
   if (delBtn && sel) delBtn.onclick = () => {
     const chosen = sel.value.trim(); if (!chosen) return;
@@ -1525,13 +1530,13 @@ function showMpStartPanel() {
   const panel = document.getElementById('mpStartPanel');
   if (!panel) return;
   panel.classList.remove('hidden');
-  // render name inputs
-  renderMpPanelNames();
+  // render name inputs (use stored roster count on initial load)
+  renderMpPanelNames(true);
   // wire controls (once per panel show, avoid duplicate listeners)
   const countEl = document.getElementById('mpPanelPlayerCount');
   if (countEl && !countEl.dataset.listenerAttached) {
-    countEl.addEventListener('input', renderMpPanelNames);
-    countEl.addEventListener('change', renderMpPanelNames);
+    countEl.addEventListener('input', () => renderMpPanelNames(false));
+    countEl.addEventListener('change', () => renderMpPanelNames(false));
     countEl.dataset.listenerAttached = 'true';
   }
   const startBtn = document.getElementById('mpPanelStartBtn');
