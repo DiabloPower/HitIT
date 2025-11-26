@@ -1527,11 +1527,16 @@ function showMpStartPanel() {
   panel.classList.remove('hidden');
   // render name inputs
   renderMpPanelNames();
-  // wire controls (once)
+  // wire controls (once per panel show, avoid duplicate listeners)
   const countEl = document.getElementById('mpPanelPlayerCount');
-  if (countEl) countEl.addEventListener('change', renderMpPanelNames);
+  if (countEl && !countEl.dataset.listenerAttached) {
+    countEl.addEventListener('input', renderMpPanelNames);
+    countEl.addEventListener('change', renderMpPanelNames);
+    countEl.dataset.listenerAttached = 'true';
+  }
   const startBtn = document.getElementById('mpPanelStartBtn');
-  if (startBtn) startBtn.onclick = () => {
+  if (startBtn && !startBtn.dataset.listenerAttached) {
+    startBtn.onclick = () => {
     const rows = Array.from(document.querySelectorAll('#mpPanelNames > div'));
     const players = rows.map((row, idx) => {
       const inputs = Array.from(row.querySelectorAll('input'));
@@ -1557,8 +1562,13 @@ function showMpStartPanel() {
     showToast('Multiplayer gestartet');
     startMultiplayer();
   };
+    startBtn.dataset.listenerAttached = 'true';
+  }
   const cancelBtn = document.getElementById('mpPanelCancelBtn');
-  if (cancelBtn) cancelBtn.onclick = () => { panel.classList.add('hidden'); showStartScreen(); };
+  if (cancelBtn && !cancelBtn.dataset.listenerAttached) {
+    cancelBtn.onclick = () => { panel.classList.add('hidden'); showStartScreen(); };
+    cancelBtn.dataset.listenerAttached = 'true';
+  }
 
   // Inject roster manager (only once)
   const existingRosterUi = document.getElementById('mpRosterManager');
