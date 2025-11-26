@@ -4,6 +4,8 @@ A music guessing game with **Jellyfin** and **Spotify** integration. Guess the y
 
 🌍 **Now fully multilingual!** Available in English and German, with easy support for adding more languages. [Learn more →](I18N.md)
 
+🎮 **[Play Online →](https://diablopower.github.io/HitIT/)** *(Requires your own API keys - stored locally in browser only, never on server)* | 💬 **[Discussions](https://github.com/DiabloPower/HitIT/discussions)** | 📝 **[License](LICENSE)**
+
 ## 📋 Requirements
 
 ### Hard Dependencies (Required)
