@@ -230,6 +230,8 @@ export default {
     timerDisabled: 'Timer: disabled',
     scoreLabel: 'SCORE',
     livesLabel: 'LIVES',
-    timeLabel: 'TIME'
+    timeLabel: 'TIME',
+    spotifyTokenExpired: '🔒 Spotify token expired! Please reconnect in Settings.',
+    spotifyConnectionError: '⚠️ Spotify error: {message}'
   }
 };

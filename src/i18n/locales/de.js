@@ -224,6 +224,8 @@ export default {
     timerDisabled: 'Timer: deaktiviert',
     scoreLabel: 'PUNKTE',
     livesLabel: 'LEBEN',
-    timeLabel: 'ZEIT'
+    timeLabel: 'ZEIT',
+    spotifyTokenExpired: '🔒 Spotify Token abgelaufen! Bitte in Settings neu verbinden.',
+    spotifyConnectionError: '⚠️ Spotify Fehler: {message}'
   }
 };

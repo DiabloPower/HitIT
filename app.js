@@ -1710,7 +1710,14 @@ window.addEventListener('jellyfin-auth-ok', (e) => {
   if (musicSource === 'jellyfin') updateConnectionStatus(true, `Jellyfin ${e.detail.version || ''}`);
 });
 window.addEventListener('spotify-auth-failed', (e) => {
-  if (musicSource === 'spotify') updateConnectionStatus(false, e.detail.message || 'Auth fehlgeschlagen');
+  if (musicSource === 'spotify') {
+    updateConnectionStatus(false, e.detail.message || 'Auth fehlgeschlagen');
+    // Show user-visible notification
+    const message = e.detail.status === 401 
+      ? t('messages.spotifyTokenExpired')
+      : t('messages.spotifyConnectionError', { message: e.detail.message || 'Verbindung fehlgeschlagen' });
+    showToast(message, 4000);
+  }
 });
 window.addEventListener('spotify-auth-ok', (e) => {
   if (musicSource === 'spotify') updateConnectionStatus(true, e.detail.user ? `Spotify (${e.detail.user})` : 'Spotify verbunden');
