@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zufälliger Jellyfin Song</title>
+  <link rel="stylesheet" href="freestyler.css">
+  <!-- Spotify Web Playback SDK -->
+  <script src="https://sdk.scdn.co/spotify-player.js"></script>
+  <head>
+    <script>
+      // SDK-Noise verhindern: einige Builds erwarten diese globale Funktion
+      window.onSpotifyWebPlaybackSDKReady = window.onSpotifyWebPlaybackSDKReady || function() {
+        console.log('Spotify Web Playback SDK global hook present');
+      };
+    </script>
+<body>
+  <!-- Start Screen -->
+  <div id="startScreen" class="start-screen">
+    <h2>Willkommen bei HitIT</h2>
+    <p>Wähle einen Spielmodus, um zu beginnen.</p>
+
+    <!-- Singleplayer Sektion -->
+    <div class="mode-section">
+      <h3>Singleplayer</h3>
+      <div class="mode-buttons">
+        <button id="startChooseBtn">Zufallswiedergabe</button>
+        <button id="startGuessBtn">Guess-the-Year</button>
+      </div>
+      <p class="mode-desc">
+        <strong>Song wählen:</strong> Zufälliges Lied nach Genre/Zeitraum auswählen.<br>
+        <strong>Guess-the-Year:</strong> Errate das Erscheinungsjahr, du hast begrenzte Leben.
+      </p>
+    </div>
+
+    <!-- Multiplayer Sektion -->
+    <div class="mode-section">
+      <h3>Multiplayer</h3>
+      <div class="mode-buttons">
+        <button id="startMultiplayerPrimaryBtn">Timeline starten</button>
+      </div>
+      <p class="mode-desc">
+        Jeder Spieler erhält eine Startkarte. Danach wird ein Lied abgespielt, 
+        und der aktive Spieler muss entscheiden, ob es vor oder nach seiner Karte erschienen ist. 
+        Mit jeder Karte entstehen Zeiträume, die korrekt eingeordnet werden müssen. 
+        Wer zuerst sein Deck voll hat, gewinnt.
+      </p>
+    </div>
+  </div>
+
+  <!-- Multiplayer Start Panel (configure before starting) -->
+  <div id="mpStartPanel" class="hidden mp-setup-panel">
+    <h3>Multiplayer Setup</h3>
+    <label>Spieleranzahl:
+      <input id="mpPanelPlayerCount" type="number" min="2" max="6" value="2">
+    </label>
+    <label>Ziel-Deckgröße:
+      <input id="mpPanelTargetSize" type="number" min="1" max="50" value="10">
+    </label>
+    <label>Genre (optional):
+      <input id="mpPanelGenre" type="text" placeholder="z.B. Rock">
+    </label>
+    <div class="mp-year-inputs">
+      <label>Min Jahr:
+        <input id="mpPanelMinYear" type="number" min="1900" max="2100" placeholder="1900">
+      </label>
+      <label>Max Jahr:
+        <input id="mpPanelMaxYear" type="number" min="1900" max="2100" placeholder="heute">
+      </label>
+    </div>
+    <div id="mpPanelNames">
+      <!-- name inputs rendered here -->
+    </div>
+    <div class="mp-button-group">
+      <button id="mpPanelStartBtn">Spiel starten</button>
+      <button id="mpPanelCancelBtn">Abbrechen</button>
+    </div>
+  </div>
+
+  <!-- Guess-the-Year Setup Panel -->
+  <div id="guessStartPanel" class="hidden mp-setup-panel">
+    <h3>Guess-the-Year Setup</h3>
+    <label>
+      <input id="guessPanelTimerEnabled" type="checkbox">
+      Timer aktivieren
+    </label>
+    <label id="guessPanelTimerDurationLabel">Timer-Dauer (Sekunden):
+      <input id="guessPanelTimerDuration" type="number" min="5" max="120" value="30">
+    </label>
+    <label>Leben:
+      <input id="guessPanelLives" type="number" min="1" max="10" value="3">
+    </label>
+    <label>Genre (optional):
+      <input id="guessPanelGenre" type="text" placeholder="z.B. Rock">
+    </label>
+    <div class="mp-year-inputs">
+      <label>Min Jahr:
+        <input id="guessPanelMinYear" type="number" min="1900" max="2100" placeholder="1900">
+      </label>
+      <label>Max Jahr:
+        <input id="guessPanelMaxYear" type="number" min="1900" max="2100" placeholder="heute">
+      </label>
+    </div>
+    <div class="mp-button-group">
+      <button id="guessPanelStartBtn">Spiel starten</button>
+      <button id="guessPanelCancelBtn">Abbrechen</button>
+    </div>
+  </div>
+
+  <!-- Hamburger Menü -->
+  <div id="hamburger" class="hamburger">☰</div>
+  <nav id="menu" class="menu">
+    <div class="menu-nav">
+      <ul>
+        <li><button id="modeChooseSongBtn" class="menu-mode mode-choose">Zufallswiedergabe</button></li>
+        <li><button id="modeGuessBtn" class="menu-mode mode-guess">Guess-the-Year</button></li>
+        <li><button id="modeMultiplayerBtn" class="menu-mode mode-multiplayer">Multiplayer</button></li>
+        <li><button id="resetRoundBtn" class="menu-reset">Reset Round</button></li>
+        <li><button id="resetSeasonBtn" class="menu-reset">Reset Season</button></li>
+      </ul>
+    </div>
+    <!-- footer area holds admin/settings and actions; stays at end of menu -->
+    <div class="menu-footer">
+      <button id="settingsBtn" class="menu-admin">Settings</button>
+      <!-- Settings moved inside the hamburger menu so it doesn't block the game area -->
+      <div id="settings" class="settings hidden" style="padding:1em;margin-top:10px;">
+        <h2 style="margin-top:0;color:#eee;">Einstellungen</h2>
+        <label style="display:block;margin:0.6em 0;color:#ccc;">Musikquelle:
+          <select id="settingMusicSource" style="width:100%;margin-top:0.4em;background:#1e1e1e;color:#eee;border:1px solid #333;padding:6px;border-radius:4px;">
+            <option value="jellyfin">Jellyfin</option>
+            <option value="spotify">Spotify</option>
+          </select>
+        </label>
+        <div id="jellyfinSettingsGroup">
+          <label style="display:block;margin:0.6em 0;color:#ccc;">Jellyfin Server URL:
+            <input type="text" id="settingServer" placeholder="https://jellyfin.example.com" style="width:100%;margin-top:0.4em;">
+          </label>
+          <label style="display:block;margin:0.6em 0;color:#ccc;">Library ID (ParentId):
+            <input type="text" id="settingLibraryId" placeholder="Library/Folder ID" style="width:100%;margin-top:0.4em;">
+          </label>
+          <label style="display:block;margin:0.6em 0;color:#ccc;">API Key:
+            <input type="password" id="settingApiKey" placeholder="Jellyfin API Key" style="width:100%;margin-top:0.4em;">
+          </label>
+        </div>
+        <div id="spotifySettingsGroup" class="hidden">
+          <label style="display:block;margin:0.6em 0;color:#ccc;">Spotify Client ID (öffentlich):
+            <input type="text" id="settingSpotifyClientId" placeholder="Spotify Client ID" style="width:100%;margin-top:0.4em;">
+          </label>
+          <label style="display:block;margin:0.6em 0;color:#ccc;">Redirect URI:
+            <input type="text" id="settingSpotifyRedirect" placeholder="https://hitit.plll6.de/ oder http://127.0.0.1:8888/" style="width:100%;margin-top:0.4em;">
+          </label>
+          <div style="color:#777;font-size:0.75em;line-height:1.3;margin-bottom:0.6em;">Hinweis: OAuth erfolgt per PKCE Flow. Keine Secrets hier speichern. Redirect URI muss in Spotify App Settings registriert sein.</div>
+          <button id="spotifyAuthBtn" style="width:100%;background:#1db954;color:#fff;padding:8px;border:none;border-radius:6px;font-weight:600;cursor:pointer;">Mit Spotify verbinden</button>
+        </div>
+        <div id="connectionStatus" style="margin:0.4em 0;font-size:0.85em;color:#bbb;">Status: <span id="connectionStatusValue">Nicht verbunden</span></div>
+        <div class="settings-note" style="color:#999;font-size:0.9em;margin-top:0.6em;">Daten werden lokal gespeichert. Spotify-Unterstützung (Beta) aktiviert.</div>
+          <div id="lastfmSettingsGroup" style="margin-top:1.2em;">
+            <label style="display:block;margin:0.6em 0;color:#ccc;">Last.fm API Key (optional):
+              <input type="text" id="settingLastfmApiKey" placeholder="Last.fm API Key" style="width:100%;margin-top:0.4em;">
+            </label>
+            <div style="color:#777;font-size:0.75em;line-height:1.3;margin-bottom:0.6em;">Optional: Für Metadaten, Cover und Songtexte. <a href="https://www.last.fm/api/account/create" target="_blank" style="color:#1db954;">API Key hier erstellen</a>. Kein Login nötig.</div>
+          </div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button id="saveSettingsBtn">Speichern</button>
+          <button id="cancelSettingsBtn">Abbrechen</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- SONG WÄHLEN -->
+  <div id="chooseArea" class="choose-area hidden">
+    <h2>🎶 Zufallswiedergabe</h2>
+
+    <!-- Filter Toggle Button -->
+    <div id="filterToggleContainer" class="filter-toggle-container">
+      <button id="filterToggleBtn" class="filter-toggle">Filter anzeigen/verstecken</button>
+    </div>
+
+    <!-- Filterbereich -->
+    <div id="filters" class="filters">
+      <label>Genre:
+        <input type="text" id="genre" placeholder="z.B. Game">
+      </label>
+      <label>Min. Jahr:
+        <input type="number" id="minYear" placeholder="1996">
+      </label>
+      <label>Max. Jahr:
+        <input type="number" id="maxYear" placeholder="1999">
+      </label>
+      <label>Artist:
+        <input type="text" id="artistFilter" placeholder="z.B. Depeche Mode">
+      </label>
+    </div>
+
+    <!-- Song auswählen bleibt sichtbar -->
+    <div id="songButtonContainer" class="song-button-container">
+      <button id="selectSongBtn">Song abspielen</button>
+    </div>
+
+    <!-- Songanzeige -->
+    <div id="choosesong" class="song hidden"></div>
+    <div id="choosecounter" class="counter hidden">Songs gespielt: 0</div>
+  </div>
+
+  <!-- GUESS-THE-YEAR -->
+  <div id="gameArea" class="game-area hidden">
+    <h2>🧠 Guess-the-Year</h2>
+
+    <!-- Songanzeige -->
+    <div id="guesssong" class="song hidden"></div>
+
+    <!-- Scoreboard -->
+    <div id="scoreboard">
+      <span id="scoreDisplay">Punkte: 0</span> • 
+      <span id="livesDisplay">Leben: 3</span> • 
+      <span id="timerDisplay">Zeit: 0</span>
+    </div>
+
+    <!-- Controls -->
+    <div id="gameControls" class="game-controls hidden">
+      <label>Jahreszahl raten:
+        <input id="guessYearInput" type="number" placeholder="z.B. 1998">
+      </label>
+      <div style="display:flex;gap:8px;">
+        <button id="submitGuessBtn">Antwort prüfen</button>
+        <button id="nextQuestionBtn" class="hidden">Nächstes</button>
+        <button id="stopGameBtn">Spiel beenden</button>
+      </div>
+      <div id="feedback"></div>
+    </div>
+
+    <div id="guesscounter" class="counter hidden">Songs gespielt: 0</div>
+  </div>
+
+  <!-- Multiplayer area -->
+  <div id="multiplayerArea" class="multiplayer-area hidden">
+    <div id="mpTopPanel" style="text-align:center;">
+      <div id="mpTopName" style="font-size:1.4rem;font-weight:700;color:#fff;">Spieler 1</div>
+      <div id="mpTopSub" style="font-size:0.9rem;color:#bbb;">Aktiver Spieler</div>
+    </div>
+    <div id="mpPlayerPanel" style="width:100%;display:flex;align-items:stretch;justify-content:center;">
+      <!-- swipe container: Deck | Drawn Card | Leaderboard -->
+      <div id="mpSwipe" style="display:flex;overflow-x:auto;scroll-snap-type:x mandatory;">
+        <section class="mpPanel" id="mpDeck" style="background:#222;border:2px solid #333;padding:1em;border-radius:6px;color:#ddd;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <h4 id="mpDeckHeader" style="margin:0;color:#fff;">Deck</h4>
+            <div id="mpDeckSize" style="font-size:1.1rem;font-weight:700;color:#fff;">0</div>
+          </div>
+          <hr style="border:0;border-top:1px solid #2a2a2a;margin:8px 0;">
+          <div id="mpDeckList">(keine Karten)</div>
+        </section>
+
+        <section class="mpPanel" id="mpDrawn" style="background:#222;border:2px solid #333;padding:1em;border-radius:6px;color:#ddd;">
+          <h4 style="margin-top:0;color:#fff;">Gezogene Karte</h4>
+          <div id="mpDrawnCard">(keine Karte)</div>
+          <div id="mpIntervals" style="margin-top:0.8em;"></div>
+        </section>
+
+        <section class="mpPanel" id="mpLeaderboardPanel" style="background:#121212;border:2px solid #222;padding:1em;border-radius:6px;color:#ddd;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <h4 style="margin:0;color:#fff;">Leaderboard</h4>
+            <div>
+              <button id="clearLeaderboardBtn" style="background:#331111;border:1px solid #441111;color:#fff;padding:6px;border-radius:4px;">Clear</button>
+            </div>
+          </div>
+          <div id="mpLeaderboardList" style="margin-top:8px;color:#ccc;">(leer)</div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- Umstellung auf ES Module für schrittweise Modularisierung -->
+  <!-- Spotify SDK Callback wird von spotifyPlayer.js gesetzt (nach Auth) -->
+  
+  <!-- Beide Skripte als Module laden -->
+  <script type="module" src="app.js"></script>
+  <script type="module" src="main.js"></script>
+</body>
+</html>

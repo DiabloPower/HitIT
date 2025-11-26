@@ -1,0 +1,914 @@
+/* Basis-Reset */
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  max-width: 100dvw;
+  max-height: 100dvh;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: "Segoe UI", Roboto, sans-serif;
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+  padding: 2dvh 3dvw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Titel */
+h1 {
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #f0f0f0;
+  border-bottom: 3px solid #444;
+  padding-bottom: 0.5em;
+  font-size: 2em;
+  text-align: center;
+  width: 100%;
+}
+
+/* Hamburger Icon */
+.hamburger {
+  font-size: clamp(1.6rem, 4dvw, 2.2rem);
+  cursor: pointer;
+  color: #eee;
+  position: fixed;
+  top: 2dvh;
+  right: 2dvw;
+  z-index: 1000;
+}
+
+/* Menü */
+.menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  /* menu becomes a column layout with a scrollable main area and footer */
+  width: min(420px, 50dvw);
+  height: 100dvh;
+  background-color: #111;
+  border-left: 2px solid #444;
+  transition: transform 0.28s ease;
+  transform: translateX(100%);
+  padding: 0;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+}
+.menu.open { transform: translateX(0); }
+
+.menu-nav { overflow-y: auto; padding: 1.2em; flex: 1 1 auto; }
+.menu-nav ul { list-style: none; padding: 0; margin: 0; display:flex; flex-direction:column; gap:12px; }
+.menu-nav li { margin: 0; }
+
+/* base menu button */
+.menu button {
+  width: 100%;
+  padding: 0.9em 1em;
+  background: linear-gradient(145deg, #2c2c2c, #161616);
+  border: 1px solid #333;
+  color: #eee;
+  font-size: 1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 6px;
+  text-align: left;
+}
+.menu button:hover { transform: translateY(-2px); }
+
+/* footer area */
+.menu-footer { padding: 0.9em; border-top: 1px solid #222; background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,0.04)); }
+
+/* Button variants */
+.menu-mode { background: linear-gradient(145deg,#292929,#151515); border-color: #444; }
+.menu button.mode-choose { border-left: 6px solid #4ea5ff; }
+.menu button.mode-guess { border-left: 6px solid #ffa94e; }
+.menu button.mode-multiplayer { border-left: 6px solid #67d6b7; }
+
+.menu-admin { background: linear-gradient(145deg,#262626,#121212); border-color:#555; color:#ffd; }
+.menu-admin:hover { transform: none; }
+
+.menu-reset { background: linear-gradient(145deg,#3b1b1b,#200909); border-color:#662222; color:#ffd; }
+.menu-reset:hover { box-shadow: 0 6px 18px rgba(102,34,34,0.15); }
+
+/* Ensure accent border is visible and content not obscured */
+.menu button.mode-choose,
+.menu button.mode-guess,
+.menu button.mode-multiplayer {
+  padding-left: calc(1em + 6px);
+}
+
+/* Mobile: menu takes full width and slides in from right full-screen */
+@media (max-width: 900px) {
+  .menu {
+    width: 100vw;
+    /* keep transform-based hiding; remove conflicting left/right positioning */
+    right: 0;
+    border-left: none;
+    border-top: 4px solid #222;
+  }
+  .menu-nav { padding: 1.2em; }
+  .menu-footer { padding: 1em; }
+}
+
+/* Filterblock */
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px,1fr));
+  gap: 1.2em 1.2em;
+  margin-bottom: 2em;
+  max-width: min(90dvw, 900px);
+  width: 100%;
+}
+.filters label { display:flex; flex-direction:column; }
+
+/* Multiplayer top panel */
+#mpTopPanel { max-width: min(90dvw, 760px); margin: 0 auto 0.8em auto; }
+#mpTopPanel #mpTopName { font-size: clamp(1.1rem, 4.2dvw, 1.6rem); font-weight:700; }
+#mpTopPanel #mpTopSub { color:#bbb; font-size:0.9rem; }
+
+/* Active player name pill with subtle color tint */
+#mpTopName.mp-name-pill {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: var(--mp-name-bg, transparent);
+  border: 1px solid var(--mp-name-border, transparent);
+  box-shadow: 0 4px 16px var(--mp-name-glow, transparent);
+  transition: background-color 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+/* Thin underline cue for current turn (dynamic color) */
+#mpTopPanel.turn-active {
+  box-shadow: 0 3px 0 0 var(--mp-turn-color, #444);
+  transition: box-shadow 160ms ease;
+}
+
+/* Player color dot and pattern accessibility helpers */
+.player-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
+  border: 2px solid rgba(255,255,255,0.25);
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.4) inset;
+  background-color: var(--dot-color,#666);
+  position: relative;
+  overflow: hidden;
+}
+.player-dot.pattern-stripes::after,
+.player-dot.pattern-dots::after,
+.player-dot.pattern-cross::after {
+  content:'';
+  position:absolute; inset:0;
+  background-size:8px 8px;
+  opacity:0.55;
+  mix-blend-mode:screen;
+}
+.player-dot.pattern-stripes::after { background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.6) 0 2px, transparent 2px 6px); }
+.player-dot.pattern-dots::after { background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.65) 1px, transparent 3px); }
+.player-dot.pattern-cross::after { background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.6) 0 2px, transparent 2px 6px), repeating-linear-gradient(-45deg, rgba(255,255,255,0.6) 0 2px, transparent 2px 6px); }
+
+/* pulse animation for active player change */
+.player-animate {
+  animation: mpPulse 540ms cubic-bezier(.2,.9,.2,1);
+}
+
+@keyframes mpPulse {
+  0% { transform: translateY(-6px) scale(0.995); opacity: 0.9; }
+  40% { transform: translateY(0) scale(1.04); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* Stack deck under drawn card on narrow screens */
+@media (max-width: 700px) {
+  #mpPlayerPanel { flex-direction: column-reverse; gap: 0.8rem; }
+  #mpDeck, #mpDrawn { width: 100%; }
+  #mpDeck { order: 2; }
+  #mpDrawn { order: 1; }
+  #mpDeckList { max-height: 36dvh; overflow:auto; }
+}
+
+/* Swipe container styling */
+#mpSwipe { -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+#mpSwipe::-webkit-scrollbar { height: 8px; }
+#mpSwipe::-webkit-scrollbar-thumb { background: #333; border-radius: 6px; }
+
+/* Multiplayer Deck Tiles */
+#mpDeckList { margin-top:4px; }
+#mpDeckList .mp-deck-item {
+  position: relative;
+  padding: 6px 8px 8px 8px;
+  border: 1px solid #2b2b2b;
+  border-radius: 10px;
+  margin-bottom: 6px;
+  background: #181818;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+#mpDeckList .mp-deck-item .mp-badge {
+  position:absolute;
+  top:6px;
+  padding:2px 6px 3px 6px;
+  font-size:0.65rem;
+  letter-spacing:0.5px;
+  font-weight:600;
+  border-radius:6px;
+  background:rgba(0,0,0,0.55);
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+  box-shadow:0 0 0 1px rgba(255,255,255,0.08),0 3px 8px -2px rgba(0,0,0,0.6);
+  border:1px solid rgba(255,255,255,0.1);
+  color:#f5f5f5;
+  display:flex;
+  align-items:center;
+  gap:4px;
+  pointer-events:none;
+  z-index:3;
+}
+#mpDeckList .mp-deck-item .mp-badge.year { left:6px; background:rgba(0,0,0,0.65); border-color:rgba(255,255,255,0.18); color:#fff; }
+#mpDeckList .mp-deck-item .mp-badge.index { right:8px; background:rgba(0,0,0,0.65); border-color:rgba(255,255,255,0.25); box-shadow:0 0 0 1px rgba(0,0,0,0.7), 0 2px 6px -1px rgba(0,0,0,0.7); font-weight:700; color:#fff; }
+#mpDeckList .mp-deck-item .mp-badge .player-dot { margin-right:0; width:10px; height:10px; box-shadow:none; border:1px solid rgba(255,255,255,0.3); }
+#mpDeckList .mp-deck-item .mp-play-btn {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  z-index: 10;
+  width: 32px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 6px;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 0.7rem;
+  cursor: pointer;
+  display: none; /* Standardmäßig versteckt */
+  align-items: center;
+  justify-content: center;
+  transition: all 160ms ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+  pointer-events: all;
+}
+/* Nur bei ausgeklappten Kacheln sichtbar */
+#mpDeckList .mp-deck-item.expanded .mp-play-btn {
+  display: flex;
+}
+#mpDeckList .mp-deck-item .mp-play-btn:hover {
+  border-color: rgba(255,255,255,0.45);
+  transform: scale(1.05);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.8);
+}
+#mpDeckList .mp-deck-item .mp-play-btn.playing {
+  /* Playing-State wird durch Progress-Gradient gesteuert */
+  border-color: rgba(30,215,96,0.6);
+}
+#mpDeckList .mp-deck-item::before {
+  /* Hauptspiel-Spotify-Button visuell deaktivieren, wenn Deck aktiv */
+  #mpSpPlayBtn.disabled,
+  #mpSpPlayBtn[disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
+    box-shadow: none;
+    filter: grayscale(0.2);
+  }
+  content: '';
+  position: absolute; inset: 0;
+  background-image: var(--bg-url);
+  background-size: cover;
+  background-position: center;
+  /* Reduce blur for better recognizability, keep slight brightness */
+  filter: blur(2px) brightness(0.9);
+  transform: scale(1.04);
+  opacity: 0.42;
+  transition: opacity 200ms ease;
+}
+#mpDeckList .mp-deck-item::after {
+  content: '';
+  position: absolute; inset:0;
+  background: linear-gradient(140deg, rgba(0,0,0,0.75), rgba(0,0,0,0.35));
+  z-index:1;
+}
+#mpDeckList .mp-deck-item .basic { position: relative; z-index:2; font-weight:600; margin-top:32px; padding:4px 8px 6px 8px; border-radius:6px; background:linear-gradient(90deg, rgba(0,0,0,0.74), rgba(0,0,0,0.58)); font-size:0.82rem; line-height:1.25; text-shadow:0 1px 2px rgba(0,0,0,0.85), 0 0 6px rgba(0,0,0,0.55); backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px); }
+#mpDeckList .mp-deck-item .mp-track-title { color:#fff; }
+#mpDeckList .mp-deck-item .details {
+  position: relative; z-index:2;
+  display: none;
+  margin-top:4px;
+  font-size: 0.75rem;
+  line-height: 1.25;
+  color: #e6e6e6;
+}
+#mpDeckList .mp-deck-item.expanded { border-color: #444; box-shadow: 0 0 0 2px rgba(255,255,255,0.05); }
+#mpDeckList .mp-deck-item.expanded::before { opacity: 0.5; }
+#mpDeckList .mp-deck-item.expanded .details { display: block; }
+#mpDeckList .mp-deck-item:hover { background-color:#202020; }
+
+@media (hover: none) {
+  #mpDeckList .mp-deck-item:hover { background-color:#181818; }
+}
+.mpPanel { box-sizing: border-box; }
+
+/* Default scroll-snap/scrolling behaviour: mobile-first
+   - horizontal scrolling with each panel occupying full width
+   - panels snap to start on scroll
+*/
+#mpSwipe {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+}
+.mpPanel {
+  scroll-snap-align: start;
+  flex: 0 0 100%;
+  min-width: 100%;
+}
+
+/* Arrow buttons removed from DOM - styles left intentionally blank */
+
+/* Desktop: if wide enough, show panels side-by-side and stop snap behavior
+   Panels will share available width evenly and allow full visibility
+*/
+@media (min-width: 1200px) {
+  #mpSwipe {
+    overflow: visible;
+    gap: 18px;
+    scroll-snap-type: none;
+    max-width: none; /* allow use of available horizontal space */
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  /* Allow panels to flexibly split the space. min-width:0 prevents
+     content from forcing overflow and lets flexing behave properly. */
+  .mpPanel {
+    /* Set an explicit three-column layout so each panel fully fits.
+       Subtract the gap space (2 * 18px) from 100% then divide by 3. */
+    flex: 0 0 calc((100% - 36px) / 3);
+    min-width: 0;
+    max-width: none;
+    scroll-snap-align: none;
+  }
+
+  /* Prevent the parent from allowing horizontal overflow on very wide screens */
+  #mpSwipe { overflow-x: hidden; }
+}
+
+/* Make swipe panels responsive in height and width */
+#multiplayerArea {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Allow area to flex and fill available vertical space */
+  flex: 1;
+  max-height: min(95dvh, calc(100dvh - 8dvh));
+}
+
+/* Ensure .hidden actually hides the multiplayer area even though
+   #multiplayerArea has a display definition (ID selector has higher specificity).
+   Using the ID+class selector increases specificity so hiding works reliably. */
+#multiplayerArea.hidden { display: none; }
+
+/* Top panel acts like a frozen table header (fixed at top, does not scroll) */
+#mpTopPanel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  background-color: #1a1a1a;
+  z-index: 100;
+  padding: 0.8em 3dvw;
+  text-align: center;
+  border-bottom: 1px solid #333;
+  /* Approx height: 2 lines of text + padding ~= 5em */
+  height: auto;
+}
+
+#mpSwipe {
+  /* Use CSS variables for header height; JS will set --mp-header-height precisely. */
+  margin: var(--mp-header-offset, 5.5em) auto 0 auto;
+  width: calc(100% - 4dvw);
+  max-width: none;
+  /* Use computed pixel height when available, but cap to viewport to avoid accidental page scrollbars */
+  height: min(var(--mp-swipe-height, calc(100dvh - var(--mp-header-height, 88px) - 10dvh)), calc(100vh - var(--mp-header-height, 88px) - 10dvh));
+  display: flex;
+  align-items: stretch;
+  gap: 18px;
+  overflow-y: auto;
+}
+
+/* Small screens: single panel (full width) */
+@media (max-width: 899px) {
+  .mpPanel { flex: 0 0 100%; min-width: 100%; scroll-snap-align: start; }
+  /* arrows removed — nothing to show on mobile */
+}
+
+/* Medium screens: show 2 panels */
+@media (min-width: 900px) and (max-width: 1399px) {
+  #mpSwipe {
+    gap: 14px;
+    scroll-snap-type: none;
+    width: calc(100% - 6dvw);
+  }
+  .mpPanel {
+    flex: 0 0 calc((100% - 14px) / 2);
+    min-width: 0;
+    scroll-snap-align: none;
+  }
+  /* arrows removed — no DOM elements present */
+}
+
+/* Desktop wide: show 3 panels */
+@media (min-width: 1400px) {
+  #mpSwipe {
+    overflow: visible;
+    gap: 18px;
+    scroll-snap-type: none;
+    max-width: none; /* allow use of available horizontal space */
+    width: 100%;
+    justify-content: space-between;
+  }
+  .mpPanel {
+    /* three equal columns */
+    flex: 0 0 calc((100% - 36px) / 3);
+    min-width: 0;
+    max-width: none;
+    scroll-snap-align: none;
+  }
+  #mpSwipe { overflow-x: hidden; }
+}
+
+.mpPanel {
+  /* fill available height and allow internal scrolling */
+  height: 100%;
+  overflow: auto;
+  padding-bottom: 1rem;
+}
+
+/* Ensure drawn card area content scrolls if tall */
+#mpDrawnCard, #mpDeckList, #mpLeaderboardList {
+  max-height: calc(100% - 64px);
+  overflow: auto;
+}
+
+@media (max-width: 700px) {
+  /* For small screens, fill remaining viewport under fixed header so
+     panels (Deck / Drawn / Leaderboard) are usable and avoid tiny boxes. */
+  /* add a tiny buffer (+2px) to avoid 1-2px clipping on some devices */
+  #mpSwipe { height: calc(100dvh - var(--mp-header-height, 88px) - 10dvh); }
+  .mpPanel { min-height: 60dvh; }
+  /* Mobile stacking order: Drawn first (primary), then Deck, then Leaderboard */
+  #mpDrawn { order: 0; }
+  #mpDeck { order: 1; }
+  #mpLeaderboardPanel { order: 2; }
+}
+.filters label { font-size: 1.1em; color: #ccc; }
+.filters input {
+  background-color: #2a2a2a;
+  border: 2px solid #555;
+  color: #eee;
+  padding: 0.8em;
+  border-radius: 6px;
+  font-size: 1.1em;
+  width: 100%;
+}
+
+/* Buttons */
+.song-button-container {
+  margin-bottom: 2em;
+  max-width: min(90dvw, 900px);
+  width: 100%;
+}
+
+button {
+  background: linear-gradient(145deg, #2c2c2c, #1a1a1a);
+  border: 2px solid #555;
+  color: #eee;
+  padding: 1em;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 1px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: clamp(0.95rem, 2.2dvw, 1.1rem);
+  width: 100%;
+}
+button:hover {
+  background: linear-gradient(145deg, #3a3a3a, #222);
+  border-color: #888;
+}
+
+/* Songanzeige */
+.song {
+  background-color: #222;
+  border: 2px solid #444;
+  padding: clamp(1rem, 3dvh, 2em);
+  border-radius: 8px;
+  box-shadow: inset 0 0 15px #000;
+  font-size: 1.1em;
+  max-width: min(90dvw, 900px);
+  width: 100%;
+  margin: 0 auto;
+}
+.label { color: #f0f0f0; font-weight: bold; }
+audio { width: 100%; margin-top: 1em; filter: grayscale(100%) contrast(120%); }
+
+/* Last.fm Cover Art */
+.lastfm-cover {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  margin-bottom: 1.2em;
+}
+
+/* Counter */
+.counter {
+  margin-top: 1.5em;
+  font-size: 1.1em;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+/* Scoreboard */
+#scoreboard {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5em;
+  margin: 1.5em auto;
+  padding: 1em 1.5em;
+  background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+  border: 2px solid #555;
+  border-radius: 8px;
+  max-width: min(92dvw, 600px);
+  width: 100%;
+  font-size: 1.1em;
+  color: #eee;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+#scoreboard span {
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  #scoreboard {
+    gap: 0.8em;
+    padding: 0.8em 1em;
+    font-size: 0.9em;
+  }
+}
+
+/* Game Controls */
+.game-controls {
+  margin: 1.5em auto;
+  padding: 1.5em;
+  background-color: #222;
+  border: 2px solid #444;
+  border-radius: 8px;
+  max-width: min(92dvw, 600px);
+  width: 100%;
+}
+
+.game-controls label {
+  display: block;
+  color: #ddd;
+  font-size: 1.1em;
+  margin-bottom: 0.8em;
+  font-weight: 600;
+}
+
+.game-controls input[type="number"] {
+  width: 100%;
+  padding: 1em;
+  font-size: 1.4em;
+  background-color: #2a2a2a;
+  border: 2px solid #555;
+  color: #eee;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 1em;
+}
+
+.game-controls input[type="number"]:focus {
+  outline: none;
+  border-color: #888;
+  box-shadow: 0 0 8px rgba(136, 136, 136, 0.3);
+}
+
+#feedback {
+  margin-top: 1em;
+  padding: 0.8em;
+  background-color: #1a1a1a;
+  border: 2px solid #333;
+  border-radius: 6px;
+  color: #ddd;
+  font-size: 1em;
+  text-align: center;
+  min-height: 2.5em;
+}
+
+/* Multiplayer Setup Panel */
+.mp-setup-panel {
+  max-width: 800px;
+  width: 100%;
+  margin: 1.5em auto;
+  background: linear-gradient(145deg, #1a1a1a, #121212);
+  border: 2px solid #333;
+  padding: 2em;
+  border-radius: 8px;
+  color: #ddd;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+.mp-setup-panel h3 {
+  margin-top: 0;
+  margin-bottom: 1.5em;
+  color: #fff;
+  font-size: 1.5em;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 2px solid #333;
+  padding-bottom: 0.8em;
+}
+
+.mp-setup-panel label {
+  display: block;
+  color: #ddd;
+  margin-bottom: 1.2em;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+.mp-setup-panel input[type="number"],
+.mp-setup-panel input[type="text"] {
+  width: 100%;
+  margin-top: 0.5em;
+  padding: 0.8em;
+  background: #2a2a2a;
+  border: 2px solid #555;
+  color: #eee;
+  border-radius: 6px;
+  font-size: 1em;
+}
+
+.mp-setup-panel input:focus {
+  outline: none;
+  border-color: #888;
+  box-shadow: 0 0 8px rgba(136, 136, 136, 0.3);
+}
+
+.mp-year-inputs {
+  display: flex;
+  gap: 1em;
+  margin-bottom: 1.2em;
+}
+
+.mp-year-inputs label {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+#mpPanelNames {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8em;
+  margin-top: 1.5em;
+  padding-top: 1.5em;
+  border-top: 1px solid #333;
+}
+
+#mpPanelNames label {
+  margin-bottom: 0;
+}
+
+.mp-button-group {
+  display: flex;
+  gap: 1em;
+  margin-top: 2em;
+  padding-top: 1.5em;
+  border-top: 1px solid #333;
+}
+
+.mp-button-group button {
+  flex: 1;
+}
+
+@media (max-width: 600px) {
+  .mp-setup-panel {
+    padding: 1.5em;
+  }
+  
+  .mp-year-inputs {
+    flex-direction: column;
+    gap: 1.2em;
+  }
+  
+  .mp-button-group {
+    flex-direction: column;
+  }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  body { padding: 2dvh 4dvw; }
+  h1 { font-size: clamp(1.2rem, 6dvw, 1.6rem); margin-bottom: 1em; }
+  .filters { max-width: 100%; }
+  .song { 
+    padding: 1.2rem; 
+    margin-top: 2dvh;
+    position: relative;
+    overflow: hidden;
+    min-height: 92dvw; /* Quadratisch: min-height = breite (92dvw entspricht max-width: min(92dvw, 760px)) */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Inhalt nach unten ausrichten */
+  }
+  .counter { font-size: 1em; margin-top: 1em; }
+  
+  /* Cover auf Mobil: Als Hintergrund, Text darüber */
+  .lastfm-cover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.15;
+    z-index: 0;
+    margin: 0;
+  }
+  
+  /* Text über dem Cover */
+  .song > div,
+  .song > details,
+  .song > #rndAudioContainer,
+  .song > #audioContainer {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+/* Filter-Toggle-Button */
+.filter-toggle-container {
+  margin-bottom: 1em;
+  width: 100%;
+  max-width: min(90dvw, 900px);
+}
+
+.filter-toggle {
+  background: linear-gradient(145deg, #444, #222);
+  border: 2px solid #666;
+  color: #eee;
+  padding: 0.8em 1.2em;
+  font-size: 1em;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 1px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.filter-toggle:hover {
+  background: linear-gradient(145deg, #555, #333);
+  border-color: #888;
+}
+
+/* Filter ausblenden */
+.filters.hidden {
+  display: none;
+}
+
+/* Generic hide helper used by JS to hide/reveal fields */
+.hidden {
+  display: none;
+}
+
+.start-screen {
+  max-width: 800px;
+  width: 100%;
+  margin: 1.5em auto;
+  text-align: center;
+  color: #ddd;
+}
+
+.start-screen h2 {
+  color: #fff;
+  margin-bottom: 0.5em;
+}
+
+.mode-section {
+  margin: 1.5em 0;
+  padding: 1em;
+  background: #121212;
+  border: 2px solid #222;
+  border-radius: 8px;
+}
+
+.mode-section h3 {
+  margin-top: 0;
+  color: #f0f0f0;
+}
+
+.mode-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 0.8em 0;
+}
+
+.mode-desc {
+  font-size: 0.95em;
+  color: #bbb;
+  line-height: 1.4;
+}
+
+/* ===== Spotify Premium Playback Badges ===== */
+.premium-badge, #mpSpotifyPremium {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0.6em 0.9em;
+  background: linear-gradient(145deg,#1f1f1f,#121212);
+  border: 2px solid #333;
+  border-radius: 6px;
+  width: 100%;
+  font-size: 0.9rem;
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.6);
+}
+.premium-badge .label { margin-right: 4px; }
+.premium-indicator { color:#1DB954; font-weight:600; letter-spacing:0.5px; }
+.premium-toggle, #mpSpPlayBtn, #gpPauseBtn {
+  width: auto;
+  flex: 0 0 auto;
+  padding: 0.6em 1.2em;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  background: linear-gradient(145deg,#2c2c2c,#161616);
+  border: 2px solid #444;
+}
+.premium-toggle:hover, #mpSpPlayBtn:hover, #gpPauseBtn:hover { background: linear-gradient(145deg,#3a3a3a,#1f1f1f); }
+
+/* Interval buttons in Multiplayer (Einordnen) */
+#mpIntervals button {
+  margin-top: 6px;
+  width: 100%;
+  font-size: clamp(0.8rem, 1.8dvw, 0.95rem);
+  padding: 0.7em 0.9em;
+  letter-spacing: 0.5px;
+}
+
+/* Reveal buttons inside drawn/guess cards */
+#mpDrawnCard button[id^="mpReveal"], #guesssong button[id^="reveal"] {
+  width: 100%;
+  margin-top: 6px;
+}
+
+/* Guess-Mode Premium Pause Button: kompakt */
+#guesssong #gpPauseBtn { width:auto; flex:0 0 auto; padding:0.5em 1.2em; }
+#guesssong #gpPremiumBadge { gap:14px; }
+#guesssong #gpPauseBtn.wide { flex:1 1 auto; width:100%; }
+
+/* Multiplayer Premium Pause Button soll verbleibenden Platz nutzen */
+#mpSpotifyPremium { display:flex; align-items:center; gap:12px; }
+#mpSpotifyPremium #mpSpPlayBtn { flex:1 1 auto; text-align:center; }
+
+/* Audio element spacing fix after badge */
+#mpDrawnCard audio, #guesssong audio { margin-top: 0.8em; }
+
+/* Zufallswiedergabe spezifische Anpassungen */
+#choosesong .premium-badge { margin-top: 0.6em; }
+
+/* Setup panel input disabled state */
+input[type="number"]:disabled, input[type="text"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: linear-gradient(145deg, #0f0f0f, #080808);
+  color: #666;
+}
+
+#choosesong button[id^="rndReveal"] { width:100%; margin-top:6px; }
+#choosesong #rndPremiumBadge { gap:14px; }
+#choosesong #rndPauseBtn { flex:1 1 auto; }
