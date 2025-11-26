@@ -1,65 +1,65 @@
-# HitIT - Mehrsprachigkeits-Update 🌍
+# HitIT - Multilingual Update 🌍
 
-## Was wurde implementiert?
+## What Was Implemented?
 
-Das gesamte Projekt ist jetzt vollständig mehrsprachig mit einem einfach erweiterbaren i18n-System!
+The entire project is now fully multilingual with an easily extensible i18n system!
 
-### ✅ Implementierte Funktionen
+### ✅ Features Implemented
 
 1. **Core i18n System** (`src/i18n/i18n.js`)
-   - Automatische Spracherkennung (Browser-Standard)
-   - LocalStorage für Präferenzen
-   - String-Interpolation für dynamische Werte
-   - Event-System für Sprachwechsel
-   - Globale `t()` Funktion für einfache Übersetzungen
+   - Automatic language detection (browser default)
+   - LocalStorage for preferences
+   - String interpolation for dynamic values
+   - Event system for language changes
+   - Global `t()` function for easy translations
 
-2. **Zwei komplette Sprachpakete**
-   - 🇬🇧 **Englisch** (Standard)
-   - 🇩🇪 **Deutsch** (vollständig übersetzt)
+2. **Two Complete Language Packs**
+   - 🇬🇧 **English** (default)
+   - 🇩🇪 **German** (fully translated)
 
-3. **Internationalisierte Bereiche**
-   - ✅ Start-Screen mit allen Modi-Beschreibungen
-   - ✅ Multiplayer-Setup Panel
-   - ✅ Guess-the-Year Setup Panel
-   - ✅ Hamburger-Menü Navigation
-   - ✅ Settings-Panel (inkl. neue Sprachauswahl!)
-   - ✅ Zufallswiedergabe (Choose Mode)
-   - ✅ Guess-the-Year Spielbereich
-   - ✅ Multiplayer Timeline
-   - ✅ Alle Buttons, Labels, Placeholders
-   - ✅ Fehlermeldungen und Bestätigungen
-   - ✅ Dynamische Inhalte (JavaScript)
+3. **Internationalized Areas**
+   - ✅ Start screen with all mode descriptions
+   - ✅ Multiplayer setup panel
+   - ✅ Guess-the-Year setup panel
+   - ✅ Hamburger menu navigation
+   - ✅ Settings panel (including new language selector!)
+   - ✅ Random playback (Choose mode)
+   - ✅ Guess-the-Year game area
+   - ✅ Multiplayer timeline
+   - ✅ All buttons, labels, placeholders
+   - ✅ Error messages and confirmations
+   - ✅ Dynamic content (JavaScript)
 
-4. **Developer-friendly**
-   - Klare Ordnerstruktur
-   - Dot-notation für Keys (`menu.settings`)
-   - Automatische Warnung bei fehlenden Übersetzungen
-   - Hot-swap fähig (keine Seiten-Reload nötig)
+4. **Developer-Friendly**
+   - Clear folder structure
+   - Dot-notation for keys (`menu.settings`)
+   - Automatic warning for missing translations
+   - Hot-swap capable (no page reload needed)
 
-## Wie benutzt man es?
+## How to Use It?
 
-### Als Benutzer
+### As a User
 
-1. Öffne die App
-2. Klicke auf das Hamburger-Menü (☰)
-3. Klicke auf "Settings"
-4. Wähle deine Sprache aus dem **Language**-Dropdown
-5. Fertig! Die gesamte UI wechselt sofort
+1. Open the app
+2. Click the hamburger menu (☰)
+3. Click "Settings"
+4. Select your language from the **Language** dropdown
+5. Done! The entire UI switches instantly
 
-Die Spracheinstellung wird im Browser gespeichert.
+Your language preference is saved in the browser.
 
-### Als Entwickler - Neue Sprache hinzufügen
+### As a Developer - Adding a New Language
 
-**Beispiel: Französisch hinzufügen**
+**Example: Adding French**
 
-#### 1. Locale-Datei erstellen
+#### 1. Create Locale File
 
 ```bash
-# Kopiere eine existierende Sprache als Basis
+# Copy an existing language as a base
 cp src/i18n/locales/en.js src/i18n/locales/fr.js
 ```
 
-Dann übersetze alle Strings:
+Then translate all strings:
 
 ```javascript
 // src/i18n/locales/fr.js
@@ -70,38 +70,38 @@ export default {
     selectMode: 'Choisissez un mode de jeu pour commencer.',
     // ... etc
   },
-  // ... alle anderen Bereiche
+  // ... all other sections
 };
 ```
 
-#### 2. In index.html registrieren
+#### 2. Register in index.html
 
 ```html
 <script type="module">
   import { initI18n } from './src/i18n/i18n.js';
   import en from './src/i18n/locales/en.js';
   import de from './src/i18n/locales/de.js';
-  import fr from './src/i18n/locales/fr.js'; // NEU
+  import fr from './src/i18n/locales/fr.js'; // NEW
   
-  initI18n({ en, de, fr }); // NEU
+  initI18n({ en, de, fr }); // NEW
 </script>
 ```
 
-#### 3. Dropdown-Option hinzufügen
+#### 3. Add Dropdown Option
 
 ```html
 <select id="settingLanguage">
   <option value="en">English</option>
   <option value="de">Deutsch</option>
-  <option value="fr">Français</option> <!-- NEU -->
+  <option value="fr">Français</option> <!-- NEW -->
 </select>
 ```
 
-Fertig! 🎉
+Done! 🎉
 
-## Technische Details
+## Technical Details
 
-### Dateistruktur
+### File Structure
 
 ```
 src/
@@ -110,17 +110,17 @@ src/
     locales/
       en.js              # English
       de.js              # Deutsch
-      [your-lang].js     # Weitere Sprachen
+      [your-lang].js     # Additional languages
 ```
 
-### Verwendung in Code
+### Usage in Code
 
 **HTML:**
 ```html
-<!-- Text übersetzen -->
+<!-- Translate text -->
 <h2 data-i18n="start.welcome">Welcome to HitIT</h2>
 
-<!-- Attribute übersetzen -->
+<!-- Translate attributes -->
 <input data-i18n-attr="placeholder" placeholder="e.g., Rock">
 ```
 
@@ -128,77 +128,77 @@ src/
 ```javascript
 import { t } from './src/i18n/i18n.js';
 
-// Einfach
+// Simple
 alert(t('messages.error'));
 
-// Mit Variablen
+// With variables
 const msg = t('messages.playerWins', { name: 'Alice', size: 10 });
 // → "Player Alice wins with a deck of 10 cards!"
 ```
 
-### Key-Struktur
+### Key Structure
 
-Alle Übersetzungsschlüssel folgen diesem Schema:
+All translation keys follow this schema:
 
 ```
-title              - Seiten-Titel
-start.*            - Start-Bildschirm
-menu.*             - Menü-Einträge
-settings.*         - Einstellungen
-choose.*           - Zufallswiedergabe
+title              - Page title
+start.*            - Start screen
+menu.*             - Menu entries
+settings.*         - Settings
+choose.*           - Random playback
 guess.*            - Guess-the-Year
-multiplayer.*      - Multiplayer-Modus
-common.*           - Gemeinsame UI (OK, Cancel, etc.)
-messages.*         - Nachrichten & Benachrichtigungen
+multiplayer.*      - Multiplayer mode
+common.*           - Common UI (OK, Cancel, etc.)
+messages.*         - Messages & notifications
 ```
 
-## Vorteile des Systems
+## System Benefits
 
-✅ **Einfach erweiterbar**: Neue Sprache = eine Datei kopieren & übersetzen  
-✅ **Kein Build-Prozess**: Direkt im Browser, kein Webpack/Vite nötig  
-✅ **Wartbar**: Alle Texte zentral, nicht im Code verstreut  
-✅ **Performant**: Übersetzungen werden einmal geladen, keine API-Calls  
-✅ **Type-safe ready**: Dot-notation Keys sind IDE-freundlich  
-✅ **Fallback**: Englisch wird angezeigt, wenn Key fehlt (+ Console-Warnung)
+✅ **Easily extensible**: New language = copy one file & translate  
+✅ **No build process**: Works directly in browser, no Webpack/Vite needed  
+✅ **Maintainable**: All text centralized, not scattered in code  
+✅ **Performant**: Translations loaded once, no API calls  
+✅ **Type-safe ready**: Dot-notation keys are IDE-friendly  
+✅ **Fallback**: English shown if key missing (+ console warning)
 
-## Nächste Schritte (optional)
+## Next Steps (Optional)
 
-Mögliche Erweiterungen:
-- 🇫🇷 Französisch
-- 🇪🇸 Spanisch
-- 🇮🇹 Italienisch
-- 🇳🇱 Niederländisch
-- 🇵🇹 Portugiesisch
-- Datum/Zeit-Formatierung pro Sprache
-- Zahlen-Formatierung (Dezimaltrennzeichen)
-- Pluralisierungs-Regeln
+Possible extensions:
+- 🇫🇷 French
+- 🇪🇸 Spanish
+- 🇮🇹 Italian
+- 🇳🇱 Dutch
+- 🇵🇹 Portuguese
+- Date/time formatting per language
+- Number formatting (decimal separators)
+- Pluralization rules
 
-## Migration der bestehenden Strings
+## Migration of Existing Strings
 
-Alle deutschen Hardcoded-Strings wurden ersetzt durch:
-- HTML: `data-i18n` Attribute
-- JS: `t()` Funktionsaufrufe
+All hardcoded German strings were replaced with:
+- HTML: `data-i18n` attributes
+- JS: `t()` function calls
 
-Der bestehende Code funktioniert weiterhin, zeigt aber jetzt die gewählte Sprache!
+The existing code still works but now shows the selected language!
 
 ## Testing
 
-1. Server starten: `python3 -m http.server 8000`
-2. Browser öffnen: `http://localhost:8000`
-3. Settings öffnen, Sprache wechseln
-4. Durch alle Modi navigieren und UI prüfen
+1. Start server: `python3 -m http.server 8000`
+2. Open browser: `http://localhost:8000`
+3. Open Settings, switch language
+4. Navigate through all modes and check UI
 
-## Probleme?
+## Problems?
 
-Falls eine Übersetzung fehlt:
-- Browser-Konsole zeigt: `Translation missing: de.some.key`
-- Key wird als Fallback angezeigt
-- Fehlenden Key zu allen Locale-Dateien hinzufügen
+If a translation is missing:
+- Browser console shows: `Translation missing: de.some.key`
+- Key is displayed as fallback
+- Add missing key to all locale files
 
 ## Credits
 
-Entwickelt mit ❤️ für HitIT  
-System ist MIT-kompatibel und frei erweiterbar!
+Built with ❤️ for HitIT  
+System is MIT-compatible and freely extensible!
 
 ---
 
