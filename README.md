@@ -4,6 +4,21 @@ A music guessing game with **Jellyfin** and **Spotify** integration. Guess the y
 
 🌍 **Now fully multilingual!** Available in English and German, with easy support for adding more languages. [Learn more →](I18N.md)
 
+## 📋 Requirements
+
+### Hard Dependencies (Required)
+- **Web Server** — to serve static files (CORS support needed)
+  - Python 3.6+ built-in server (recommended)
+  - OR Node.js http-server
+  - OR any other static file server
+- **Modern Browser** — with ES modules support (Chrome, Firefox, Safari, Edge)
+
+### Soft Dependencies (Optional)
+- **Music Source** — at least one of:
+  - Jellyfin server with API access
+  - Spotify account (Premium)
+- **Last.fm API key** — for enhanced metadata (covers, lyrics, tags)
+
 ## 🚀 Quick Start
 
 ### 1. Start the server
@@ -32,21 +47,29 @@ Open the **hamburger menu** (☰) → **Settings**
 #### Option A: Jellyfin (recommended for local music)
 
 1. Music source: **Jellyfin**
-2. Server URL: `https://your-jellyfin.server`
-3. Library ID: `abc123...` (Parent ID of your music library)
-4. API Key: `xyz789...` (Jellyfin Dashboard → API Keys)
-5. **Save** → status should turn green ✅
+2. Configure server URL, Library ID, and API Key
+3. **Save** → status should turn green ✅
+
+**Detailed guide:** [JELLYFIN_SETUP.md](JELLYFIN_SETUP.md)
 
 #### Option B: Spotify (for streaming)
 
 1. Music source: **Spotify**
-2. Client ID: see [Spotify Setup →](SPOTIFY_SETUP.md)
+2. Configure Client ID
 3. **Save**
 4. Click **"Connect with Spotify"**
-5. In the browser: log in & authorize
-6. Redirect back to the app → status should turn green ✅
+5. Authorize in browser → redirect back
+6. Status should turn green ✅
 
 **Detailed guide:** [SPOTIFY_SETUP.md](SPOTIFY_SETUP.md)
+
+#### Optional: Last.fm (enhanced metadata)
+
+- Add Last.fm API key in Settings
+- Enriches songs with cover art, lyrics, and tags
+- No account login required, just API key
+
+**Detailed guide:** [LASTFM_SETUP.md](LASTFM_SETUP.md)
 
 ## 🎮 Game Modes
 
@@ -196,16 +219,16 @@ npx http-server -p 8080 -a 127.0.0.1
 - Server must bind to `127.0.0.1`
 - Add the redirect URI exactly like this in the Spotify dashboard
 
-## 📝 Configuration
+## 📝 Advanced Configuration
 
-### Jellyfin setup (summary)
-Configure Jellyfin as a source via the Settings UI (server URL, library ID, API key). For detailed steps (API key creation, ParentId discovery, CORS) see: [JELLYFIN_SETUP.md](JELLYFIN_SETUP.md).
+For detailed configuration of each service, see the dedicated setup guides:
 
-### Spotify setup (summary)
-Add a Client ID and connect via PKCE OAuth. Full guide: [SPOTIFY_SETUP.md](SPOTIFY_SETUP.md). Redirect URI must match exactly `http://127.0.0.1:8080/` locally.
-
-### Last.fm metadata (optional)
-Add a Last.fm API key to enrich songs with tags, cover art and album/year. See: [LASTFM_SETUP.md](LASTFM_SETUP.md).
+- **[JELLYFIN_SETUP.md](JELLYFIN_SETUP.md)** — Server URL, Library ID, API key creation, CORS setup
+- **[SPOTIFY_SETUP.md](SPOTIFY_SETUP.md)** — Client ID, OAuth flow, redirect URI configuration
+- **[LASTFM_SETUP.md](LASTFM_SETUP.md)** — API key creation, metadata enrichment
+- **[I18N.md](I18N.md)** — Adding new languages, translation system
+- **[SETUP.md](SETUP.md)** — Detailed environment setup
+- **[SECURITY.md](SECURITY.md)** — Security best practices, deployment guidelines
 
 ## 🎨 Customization
 
