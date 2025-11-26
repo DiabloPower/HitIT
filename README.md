@@ -2,6 +2,8 @@
 
 A music guessing game with **Jellyfin** and **Spotify** integration. Guess the year, pick songs by genre/decade, or play in multiplayer mode!
 
+🌍 **Now fully multilingual!** Available in English and German, with easy support for adding more languages. [Learn more →](I18N.md)
+
 ## 🚀 Quick Start
 
 ### 1. Start the server
@@ -99,8 +101,12 @@ HitIT/
 ├── JELLYFIN_SETUP.md           # Jellyfin configuration guide
 ├── SPOTIFY_SETUP.md            # Spotify OAuth setup (PKCE)
 ├── LASTFM_SETUP.md             # Last.fm metadata integration
+├── I18N.md                     # Internationalization guide
 └── src/
    ├── config.js               # Runtime config (selected source, server URLs)
+   ├── i18n/                   # Internationalization system
+   │   ├── i18n.js             # Core translation engine
+   │   └── locales/            # Language files (en.js, de.js, template.js)
    ├── state/
    │   └── gameState.js        # Central game state (scores, lives, active song)
    ├── services/               # External + domain services
@@ -124,6 +130,12 @@ HitIT/
 ✅ **Multi-source support**
    - Jellyfin (local music, full-length)
    - Spotify (streaming, 30s previews)
+
+✅ **Multilingual interface** 🌍
+   - English and German fully supported
+   - Easy to add new languages
+   - Language switcher in Settings
+   - [Learn more →](I18N.md)
 
 ✅ **OAuth 2.0 PKCE**
    - Secure login without client secret

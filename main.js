@@ -3,6 +3,7 @@
 
 import { loadSettings } from './src/config.js';
 import { state } from './src/state/gameState.js';
+import { getCurrentLanguage, setLanguage, getAvailableLanguages } from './src/i18n/i18n.js';
 // Modul-Imports für neue Spielmodi
 import { getRandomSong as chooseGetRandomSong } from './src/modes/chooseMode.js';
 import { startGame, submitGuess, nextQuestion, stopGame } from './src/modes/guessGame.js';
@@ -11,6 +12,17 @@ import { startMultiplayerGame, stopMultiplayerGame } from './src/modes/multiplay
 loadSettings();
 
 function bindEvents() {
+  // Language Switcher
+  const languageSelect = document.getElementById('settingLanguage');
+  if (languageSelect) {
+    // Set current language
+    languageSelect.value = getCurrentLanguage();
+    
+    languageSelect.addEventListener('change', (e) => {
+      setLanguage(e.target.value);
+    });
+  }
+
   // Choose Mode
   const selectSongBtn = document.getElementById('selectSongBtn');
   if (selectSongBtn) selectSongBtn.addEventListener('click', chooseGetRandomSong);

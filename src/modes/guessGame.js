@@ -4,6 +4,7 @@ import { filterSongs, pickRandomSong, enrichSongWithLastfm } from '../services/s
 import { markSongUsed, state, resetRound } from '../state/gameState.js';
 import { server, apiKey, musicSource } from '../config.js';
 import { tryPlayAudio } from '../utils/audio.js';
+import { t } from '../i18n/i18n.js';
 
 // Lokaler Spielzustand (nicht mehr via Proxy)
 let currentSong = null;
@@ -13,8 +14,8 @@ let timerInterval = null;
 function updateCounter() {
   const chooseCounter = document.getElementById('choosecounter');
   const guessCounter = document.getElementById('guesscounter');
-  if (chooseCounter) chooseCounter.textContent = `Songs gespielt: ${state.roundCounter}`;
-  if (guessCounter) guessCounter.textContent = `Songs gespielt: ${state.roundCounter}`;
+  if (chooseCounter) chooseCounter.innerHTML = `${t('choose.songsPlayed')}: ${state.roundCounter}`;
+  if (guessCounter) guessCounter.innerHTML = `${t('guess.songsPlayed')}: ${state.roundCounter}`;
 }
 
 export async function getRandomSongForGame() {
@@ -32,7 +33,7 @@ export async function getRandomSongForGame() {
     if (filtered.length) song = pickRandomSong(filtered);
     attempts++;
   }
-  if (!song) { const el = document.getElementById('guesssong'); if (el) el.textContent = 'Kein neuer Song gefunden.'; return null; }
+  if (!song) { const el = document.getElementById('guesssong'); if (el) el.textContent = t('messages.noSongFound'); return null; }
   markSongUsed(song.Id);
   updateCounter();
   currentSong = song;
@@ -41,7 +42,7 @@ export async function getRandomSongForGame() {
 }
 
 export async function presentQuestionForSong(song) {
-  const genresDisplay = song.Genres?.length ? song.Genres.join(', ') : 'Unbekannt';
+  const genresDisplay = song.Genres?.length ? song.Genres.join(', ') : t('common.unknown');
   const container = document.getElementById('guesssong');
   if (!container) return;
   // Sicherstellen, dass Container sichtbar ist
@@ -62,20 +63,20 @@ export async function presentQuestionForSong(song) {
   }
   if (coverUrl) coverHtml = `<img id="guessCover" src="${coverUrl}" alt="Cover" class="lastfm-cover hidden">`;
   let tagsHtml = '';
-  if (lastfmData?.tags?.length) tagsHtml = `<div><span class=label>Tags (Last.fm):</span> ${lastfmData.tags.join(', ')}</div>`;
+  if (lastfmData?.tags?.length) tagsHtml = `<div><span class=label>${t('common.tags')} (Last.fm):</span> ${lastfmData.tags.join(', ')}</div>`;
   let lyricsHtml = '';
-  if (lastfmData?.lyrics) lyricsHtml = `<details><summary>Songtext (Last.fm)</summary><pre class="lastfm-lyrics">${lastfmData.lyrics}</pre></details>`;
+  if (lastfmData?.lyrics) lyricsHtml = `<details><summary>${t('common.lyrics')} (Last.fm)</summary><pre class="lastfm-lyrics">${lastfmData.lyrics}</pre></details>`;
   // Setup base UI (ohne Audio zunächst)
   container.innerHTML = `
     ${coverHtml}
-    <div><span class=label>Titel:</span> <span id=songTitle class=hidden>${song.Name}</span> <button id=revealTitleBtn>Anzeigen</button></div>
-    <div><span class=label>Artist:</span> <span id=songArtist class=hidden>${song.AlbumArtists?.[0]?.Name || song.Artists?.[0] || '?'}</span> <button id=revealArtistBtn>Anzeigen</button></div>
-    <div><span class=label>Album:</span> <span id=songAlbum class=hidden>${song.Album || 'Unbekannt'}</span> <button id=revealAlbumBtn>Anzeigen</button></div>
-    <div><span class=label>Jahr:</span> <em>versteckt</em></div>
-    <div><span class=label>Genre:</span> ${genresDisplay}</div>
+    <div><span class=label>${t('common.title')}:</span> <span id=songTitle class=hidden>${song.Name}</span> <button id=revealTitleBtn>${t('common.show')}</button></div>
+    <div><span class=label>${t('common.artist')}:</span> <span id=songArtist class=hidden>${song.AlbumArtists?.[0]?.Name || song.Artists?.[0] || '?'}</span> <button id=revealArtistBtn>${t('common.show')}</button></div>
+    <div><span class=label>${t('common.album')}:</span> <span id=songAlbum class=hidden>${song.Album || t('common.unknown')}</span> <button id=revealAlbumBtn>${t('common.show')}</button></div>
+    <div><span class=label>${t('common.year')}:</span> <em>${t('common.hidden')}</em></div>
+    <div><span class=label>${t('common.genre')}:</span> ${genresDisplay}</div>
     ${tagsHtml}
     ${lyricsHtml}
-    <div id="audioContainer"><span class=label>Stream:</span> <span id="audioPlaceholder">Lädt...</span></div>`;
+    <div id="audioContainer"><span class=label>${t('common.stream')}:</span> <span id="audioPlaceholder">${t('common.loading')}</span></div>`;
   
   wireRevealButtons();
   
@@ -93,8 +94,8 @@ export async function presentQuestionForSong(song) {
           const audioContainer = document.getElementById('audioContainer');
           if (audioContainer) {
             audioContainer.innerHTML = `<div class="premium-badge" id="gpPremiumBadge">
-              <span class="premium-indicator">Spotify Premium</span>
-              <button id="gpPauseBtn" class="premium-toggle wide">Pause</button>
+              <span class="premium-indicator">${t('common.spotifyPremium')}</span>
+              <button id="gpPauseBtn" class="premium-toggle wide">${t('common.pause')}</button>
             </div>`;
             const pauseBtn = document.getElementById('gpPauseBtn');
             let progressInterval = null;
@@ -108,13 +109,13 @@ export async function presentQuestionForSong(song) {
               pauseBtn.addEventListener('click', async () => {
                 if (!paused) { 
                   await playerModule.pausePlayback(); 
-                  pauseBtn.textContent='Play'; 
+                  pauseBtn.textContent=t('common.play'); 
                   paused=true;
                   if (progressInterval) clearInterval(progressInterval);
                 }
                 else { 
                   await playerModule.resumePlayback(); 
-                  pauseBtn.textContent='Pause'; 
+                  pauseBtn.textContent=t('common.pause'); 
                   paused=false;
                   try {
                     progressInterval = playerModule.startProgressTracking('gpPauseBtn');
@@ -156,7 +157,7 @@ function insertAudioElement(src) {
   const audioContainer = document.getElementById('audioContainer');
   if (!audioContainer) return;
   if (!src) {
-    audioContainer.innerHTML = `<span class=label>Stream:</span> <em>Kein Audio verfügbar</em>`;
+    audioContainer.innerHTML = `<span class=label>${t('common.stream')}:</span> <em>${t('messages.noAudioAvailable')}</em>`;
     return;
   }
   audioContainer.innerHTML = `<span class=label>Stream:</span> <audio id=player controls src="${src}"></audio>`;
@@ -176,20 +177,20 @@ function wireRevealButtons() {
 function startTimer() {
   clearTimer();
   if (state.timerEnabled === false) {
-    document.getElementById('timerDisplay').textContent = 'Timer: deaktiviert';
+    document.getElementById('timerDisplay').textContent = t('messages.timerDisabled');
     return;
   }
   state.timerRemaining = state.timerDuration;
-  document.getElementById('timerDisplay').textContent = `Zeit: ${state.timerRemaining}s`;
+  document.getElementById('timerDisplay').textContent = `${t('messages.timer')}: ${state.timerRemaining}s`;
   timerInterval = setInterval(() => {
     state.timerRemaining--;
-    document.getElementById('timerDisplay').textContent = `Zeit: ${state.timerRemaining}s`;
+    document.getElementById('timerDisplay').textContent = `${t('messages.timer')}: ${state.timerRemaining}s`;
     if (state.timerRemaining <= 0) { clearTimer(); onTimeUp(); }
   }, 1000);
 }
 function clearTimer() { if (timerInterval) { clearInterval(timerInterval); timerInterval=null; } }
 function onTimeUp() { const fb = document.getElementById('feedback'); if (fb) fb.textContent='Zeit abgelaufen!'; applyScoring(null); }
-function updateScoreboard() { document.getElementById('scoreDisplay').textContent = `Punkte: ${state.playerScore}`; document.getElementById('livesDisplay').textContent = `Leben: ${state.lives}`; }
+function updateScoreboard() { document.getElementById('scoreDisplay').textContent = `${t('messages.scoreLabel')}: ${state.playerScore}`; document.getElementById('livesDisplay').textContent = `${t('messages.livesLabel')}: ${state.lives}`; }
 
 function applyScoring(guessYear) {
   clearTimer();
@@ -210,8 +211,29 @@ function applyScoring(guessYear) {
   });
   
   const feedbackEl = document.getElementById('feedback');
-  const actualYear = currentSong?.ProductionYear || (currentSong?.PremiereDate ? new Date(currentSong.PremiereDate).getFullYear() : null);
-  if (!actualYear) { feedbackEl.textContent = 'Kein Jahr verfügbar.'; document.getElementById('submitGuessBtn').classList.add('hidden'); document.getElementById('nextQuestionBtn').classList.remove('hidden'); return; }
+  // Try multiple sources for year: ProductionYear, PremiereDate, or Album property
+  let actualYear = currentSong?.ProductionYear;
+  if (!actualYear && currentSong?.PremiereDate) {
+    actualYear = new Date(currentSong.PremiereDate).getFullYear();
+  }
+  if (!actualYear && currentSong?.Album) {
+    // Try to extract year from Album string (e.g., "Album Name (2020)")
+    const match = currentSong.Album.match(/\((\d{4})\)/);
+    if (match) actualYear = parseInt(match[1], 10);
+  }
+  if (!actualYear) { 
+    console.warn('No year found for song:', currentSong?.Name, currentSong);
+    feedbackEl.textContent = t('messages.noYearAvailable'); 
+    document.getElementById('submitGuessBtn').classList.add('hidden'); 
+    document.getElementById('nextQuestionBtn').classList.remove('hidden'); 
+    return; 
+  }
+  
+  // Jahr anzeigen (wichtig: das war der Bug!)
+  const yearContainer = document.querySelector('#guesssong > div:nth-of-type(4)');
+  if (yearContainer) {
+    yearContainer.innerHTML = `<span class=label>${t('common.year')}:</span> <strong>${actualYear}</strong>`;
+  }
   let points = 0;
   if (typeof guessYear === 'number') {
     const diff = Math.abs(actualYear - guessYear);
@@ -219,7 +241,7 @@ function applyScoring(guessYear) {
   }
   state.playerScore += points;
   if (points === 0) state.lives -= 1;
-  feedbackEl.textContent = `Richtiges Jahr: ${actualYear}. Punkte: ${points}`;
+  feedbackEl.textContent = t('messages.correctYearPoints', { year: actualYear, points });
   document.getElementById('submitGuessBtn')?.classList.add('hidden');
   document.getElementById('nextQuestionBtn')?.classList.remove('hidden');
   updateScoreboard();
@@ -252,7 +274,7 @@ export function startGame() {
   if (livesEl) state.lives = parseInt(livesEl.value) || state.DEFAULT_LIVES;
   else state.lives = state.DEFAULT_LIVES;
   state.gameActive = true; state.playerScore = 0; resetRound();
-  const gs = document.getElementById('guesssong'); if (gs) gs.textContent='Spiel gestartet — viel Erfolg!';
+  const gs = document.getElementById('guesssong'); if (gs) gs.textContent = t('messages.gameStarted');
   updateScoreboard();
   getRandomSongForGame();
 }
@@ -260,11 +282,11 @@ export function stopGame() {
   state.gameActive = false; clearTimer();
   document.getElementById('gameControls')?.classList.add('hidden');
   const fb = document.getElementById('feedback'); if (fb) fb.textContent='';
-  const gs = document.getElementById('guesssong'); if (gs) gs.textContent='Spiel beendet.';
+  const gs = document.getElementById('guesssong'); if (gs) gs.textContent = t('messages.gameStopped');
 }
 function endGame() {
   state.gameActive = false; clearTimer();
-  const fb = document.getElementById('feedback'); if (fb) fb.textContent = `Spiel vorbei — Gesamtpunkte: ${state.playerScore}`;
+  const fb = document.getElementById('feedback'); if (fb) fb.textContent = t('messages.gameOverScore', { score: state.playerScore });
   // Controls sichtbar lassen, aber Buttons ausblenden
   document.getElementById('submitGuessBtn')?.classList.add('hidden');
   document.getElementById('nextQuestionBtn')?.classList.add('hidden');

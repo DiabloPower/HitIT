@@ -10,6 +10,7 @@ import { tryPlayAudio } from './src/utils/audio.js';
 import { fetchRandomItems, validateJellyfinConfig } from './src/services/jellyfinClient.js';
 import { validateSpotifyConfig, startSpotifyAuthFlow, fetchRandomSpotifyTracks, initSpotifyClient } from './src/services/spotifyClient.js';
 import { songYear, filterSongs, pickRandomSong, enrichSongWithLastfm } from './src/services/songService.js';
+import { t } from './src/i18n/i18n.js';
 
 // Einstellungen laden (ausgelagert in config.js)
 loadSettings();
@@ -81,14 +82,14 @@ function renderLeaderboard() {
   const listEl = document.getElementById('mpLeaderboardList');
   const entries = loadLeaderboard();
   if (!listEl) return;
-  if (!entries || entries.length === 0) { listEl.textContent = '(leer)'; return; }
+  if (!entries || entries.length === 0) { listEl.textContent = t('multiplayer.empty'); return; }
   listEl.innerHTML = entries.map((e, idx) => {
     const hex = e.color || defaultPlayerColors()[idx % defaultPlayerColors().length];
     const pattern = patternForIndex(idx);
     const contrast = contrastColor(hex);
     return `<div style="padding:6px;border-bottom:1px solid #111;display:flex;align-items:center;gap:6px;">
       <span class="player-dot ${pattern}" style="--dot-color:${hex}"></span>
-      <strong style="color:${contrast}">${e.name}</strong> — Deckgröße: ${e.deckSize} <span style="color:#888">(${new Date(e.date).toLocaleString()})</span>
+      <strong style="color:${contrast}">${e.name}</strong> — ${t('messages.deckSizeLabel')}: ${e.deckSize} <span style="color:#888">(${new Date(e.date).toLocaleString()})</span>
     </div>`;
   }).join('');
 }
@@ -198,8 +199,8 @@ function renderMpPlayerPanel() {
   // Top panel shows active player prominently
   const topName = document.getElementById('mpTopName');
   const topSub = document.getElementById('mpTopSub');
-  if (topName) topName.textContent = player.name || `Spieler ${player.id+1}`;
-  if (topSub) topSub.textContent = 'Aktiver Spieler';
+  if (topName) topName.textContent = player.name || `${t('multiplayer.activePlayer')} ${player.id+1}`;
+  if (topSub) topSub.textContent = t('multiplayer.activePlayer');
   // Apply subtle color highlight for active player
   applyActivePlayerColor(player);
   // animate top panel on player change
@@ -216,7 +217,7 @@ function renderMpPlayerPanel() {
 
   const deckList = document.getElementById('mpDeckList');
   if (!player.deck || player.deck.length === 0) {
-    deckList.innerHTML = '(keine Karten)';
+    deckList.innerHTML = t('multiplayer.noCards');
   } else {
     // show deck sorted by year ascending
     const sorted = [...player.deck].sort((a,b) => (songYear(a) - songYear(b)));
@@ -244,11 +245,11 @@ function renderMpPlayerPanel() {
           <button class="mp-play-btn" data-song-index="${idx}" aria-label="Play/Stop">▶</button>
           <div class="basic"><span class="mp-track-title">${s.Name}</span></div>
           <div class="details">
-            <div><strong>Titel:</strong> ${s.Name}</div>
-            <div><strong>Artist:</strong> ${artist}</div>
-            <div><strong>Album:</strong> ${album}</div>
-            <div><strong>Genre:</strong> ${genres}</div>
-            <div><strong>Jahr:</strong> ${yearVal}</div>
+            <div><strong>${t('common.title')}:</strong> ${s.Name}</div>
+            <div><strong>${t('common.artist')}:</strong> ${artist}</div>
+            <div><strong>${t('common.album')}:</strong> ${album}</div>
+            <div><strong>${t('common.genre')}:</strong> ${genres}</div>
+            <div><strong>${t('common.year')}:</strong> ${yearVal}</div>
             <div><strong>Position:</strong> ${idx+1} / ${sorted.length}</div>
           </div>
         </div>`;
@@ -598,7 +599,7 @@ async function mpStartTurn() {
   // draw card for this player
   const card = await getRandomSongWithYear();
   if (!card) {
-    document.getElementById('mpDrawnCard').textContent = 'Keine Karte gefunden.';
+    document.getElementById('mpDrawnCard').textContent = t('messages.noCardFound');
     return;
   }
   // Audio-Handling:
@@ -621,13 +622,13 @@ async function mpStartTurn() {
             <button id="mpSpPlayBtn">Pause</button>
           </div>`;
         } else {
-          audioMarkup = `<em>Kein Preview verfügbar (Premium erforderlich)</em>`;
+          audioMarkup = `<em>${t('messages.noPreviewAvailable')}</em>`;
         }
       } catch (e) {
-        audioMarkup = `<em>Spotify Player Fehler</em>`;
+        audioMarkup = `<em>${t('messages.spotifyPlayerError')}</em>`;
       }
     } else {
-      audioMarkup = `<em>Kein Audio verfügbar</em>`;
+      audioMarkup = `<em>${t('messages.noAudioAvailable')}</em>`;
     }
   } else {
     audioMarkup = `<audio id="mpAudio" controls src="${server}/Items/${card.Id}/Download?api_key=${apiKey}"></audio>`;
@@ -635,10 +636,10 @@ async function mpStartTurn() {
 
   // show drawn card (metadata + audio). Titel/Artist/Album zunächst verborgen.
   document.getElementById('mpDrawnCard').innerHTML = `
-    <div><span class="label">Titel:</span> <span id="mpDrawnTitle" class="hidden">${card.Name}</span> <button id="mpRevealTitle">Anzeigen</button></div>
-    <div><span class="label">Artist:</span> <span id="mpDrawnArtist" class="hidden">${card.AlbumArtists?.[0]?.Name || "?"}</span> <button id="mpRevealArtist">Anzeigen</button></div>
-    <div><span class="label">Album:</span> <span id="mpDrawnAlbum" class="hidden">${card.Album || "Unbekannt"}</span> <button id="mpRevealAlbum">Anzeigen</button></div>
-    <div><span class="label">Jahr:</span> <span id="mpDrawnYear">(versteckt)</span></div>
+    <div><span class="label">${t('common.title')}:</span> <span id="mpDrawnTitle" class="hidden">${card.Name}</span> <button id="mpRevealTitle">${t('common.show')}</button></div>
+    <div><span class="label">${t('common.artist')}:</span> <span id="mpDrawnArtist" class="hidden">${card.AlbumArtists?.[0]?.Name || "?"}</span> <button id="mpRevealArtist">${t('common.show')}</button></div>
+    <div><span class="label">${t('common.album')}:</span> <span id="mpDrawnAlbum" class="hidden">${card.Album || t('common.unknown')}</span> <button id="mpRevealAlbum">${t('common.show')}</button></div>
+    <div><span class="label">${t('common.year')}:</span> <span id="mpDrawnYear">(${t('common.hidden')})</span></div>
     <div style="margin-top:6px;display:flex;gap:8px;align-items:center;">${audioMarkup}</div>
   `;
 
@@ -705,14 +706,14 @@ function renderMpIntervals(player, card) {
   // build options: older than all (index 0), between each pair (index 1..n-1), newer than all (index n)
   const options = [];
   // older than all
-  options.push({ idx: 0, label: deck.length ? `bis ${songYear(deck[0])} (inkl.)` : 'bis heute' });
+  options.push({ idx: 0, label: deck.length ? t('messages.upToYearIncl', { year: songYear(deck[0]) }) : t('messages.upToToday') });
   for (let i = 0; i < deck.length - 1; i++) {
     const a = songYear(deck[i]);
     const b = songYear(deck[i+1]);
     options.push({ idx: i+1, label: `${a} – ${b}` });
   }
   // between last and newer
-  if (deck.length > 0) options.push({ idx: deck.length, label: `${songYear(deck[deck.length-1])} bis heute` });
+  if (deck.length > 0) options.push({ idx: deck.length, label: t('messages.fromYearToToday', { year: songYear(deck[deck.length-1]) }) });
 
   // create buttons
   options.forEach(opt => {
@@ -738,13 +739,13 @@ function mpHandleIntervalSelection(player, chosenIndex) {
   const correct = (correctIndex === chosenIndex);
   // reveal year now
   const yearEl = document.getElementById('mpDrawnYear');
-  if (yearEl) yearEl.textContent = year || '(unbekannt)';
+  if (yearEl) yearEl.textContent = year || `(${t('common.unknown')})`;
 
   const drawnEl = document.getElementById('mpDrawnCard');
   if (correct) {
     // insert into deck at correctIndex
     deck.splice(correctIndex, 0, card);
-    status.textContent = `${player.name} — richtig! Deckgröße: ${deck.length}/${mpTargetStreak}`;
+    status.textContent = t('messages.correctPlacement', { name: player.name, current: deck.length, target: mpTargetStreak });
     // visual feedback (green)
     if (drawnEl) {
       drawnEl.style.transition = 'background-color 0.15s ease';
@@ -753,7 +754,7 @@ function mpHandleIntervalSelection(player, chosenIndex) {
     }
     // check win by deck size
     if (deck.length >= mpTargetStreak) {
-      status.textContent = `${player.name} hat gewonnen! (Deckgröße ${deck.length}/${mpTargetStreak})`;
+      status.textContent = t('messages.playerWon', { name: player.name, size: deck.length, target: mpTargetStreak });
       multiplayerActive = false;
       // hide intervals
       const intervals = document.getElementById('mpIntervals'); if (intervals) intervals.innerHTML = '';
@@ -767,7 +768,7 @@ function mpHandleIntervalSelection(player, chosenIndex) {
   } else {
     // incorrect: discard the card
     mpDiscardPile.push(card);
-    status.textContent = `${player.name} — falsch. Karte wird abgelegt.`;
+    status.textContent = t('messages.wrongPlacement', { name: player.name });
     // visual feedback (red)
     if (drawnEl) {
       drawnEl.style.transition = 'background-color 0.15s ease';
@@ -814,7 +815,7 @@ async function getRandomSong() {
   }
 
   if (!song) {
-    document.getElementById("choosesong").textContent = "Kein neuer Song gefunden.";
+    document.getElementById("choosesong").textContent = t('messages.noSongFound');
     return;
   }
 
@@ -867,7 +868,7 @@ async function getRandomSongForGame() {
   }
 
   if (!song) {
-    document.getElementById("guesssong").textContent = "Kein neuer Song gefunden.";
+    document.getElementById("guesssong").textContent = t('messages.noSongFound');
     return null;
   }
 
@@ -891,12 +892,12 @@ function presentQuestionForSong(song) {
   
   // Render metadata but hide album/artist/title by default; year is hidden for guessing
   document.getElementById("guesssong").innerHTML = `
-    <div><span class="label">Titel:</span> <span id="songTitle" class="hidden">${song.Name}</span> <button id="revealTitleBtn">Anzeigen</button></div>
-    <div><span class="label">Artist:</span> <span id="songArtist" class="hidden">${song.AlbumArtists?.[0]?.Name || "?"}</span> <button id="revealArtistBtn">Anzeigen</button></div>
-    <div><span class="label">Album:</span> <span id="songAlbum" class="hidden">${song.Album || "Unbekannt"}</span> <button id="revealAlbumBtn">Anzeigen</button></div>
-    <div><span class="label">Jahr:</span> <em>versteckt</em></div>
-    <div><span class="label">Genre:</span> ${genresDisplay}</div>
-    <div><span class="label">Stream:</span>
+    <div><span class="label">${t('common.title')}:</span> <span id="songTitle" class="hidden">${song.Name}</span> <button id="revealTitleBtn">${t('common.show')}</button></div>
+    <div><span class="label">${t('common.artist')}:</span> <span id="songArtist" class="hidden">${song.AlbumArtists?.[0]?.Name || "?"}</span> <button id="revealArtistBtn">${t('common.show')}</button></div>
+    <div><span class="label">${t('common.album')}:</span> <span id="songAlbum" class="hidden">${song.Album || t('common.unknown')}</span> <button id="revealAlbumBtn">${t('common.show')}</button></div>
+    <div><span class="label">${t('common.year')}:</span> <em>${t('common.hidden')}</em></div>
+    <div><span class="label">${t('common.genre')}:</span> ${genresDisplay}</div>
+    <div><span class="label">${t('common.stream')}:</span>
       <audio id="player" controls src="${audioSrc}"></audio>
     </div>
   `;
@@ -952,14 +953,14 @@ function clearTimer() {
 }
 
 function onTimeUp() {
-  document.getElementById('feedback').textContent = 'Zeit abgelaufen!';
+  document.getElementById('feedback').textContent = t('messages.timeUp');
   // treat as incorrect
   applyScoring(null);
 }
 
 function updateScoreboard() {
-  document.getElementById('scoreDisplay').textContent = `Punkte: ${playerScore}`;
-  document.getElementById('livesDisplay').textContent = `Leben: ${lives}`;
+  document.getElementById('scoreDisplay').textContent = `${t('messages.score')}: ${playerScore}`;
+  document.getElementById('livesDisplay').textContent = `${t('messages.lives')}: ${lives}`;
 }
 
 function applyScoring(guessYear) {
@@ -967,7 +968,7 @@ function applyScoring(guessYear) {
   const feedbackEl = document.getElementById('feedback');
   const actualYear = currentSong?.ProductionYear || (currentSong?.PremiereDate ? new Date(currentSong.PremiereDate).getFullYear() : null);
   if (!actualYear) {
-    feedbackEl.textContent = `Kein Jahr verfügbar. Genaues Ergebnis unbekannt.`;
+    feedbackEl.textContent = t('messages.noYearAvailable');
     document.getElementById('submitGuessBtn').classList.add('hidden');
     document.getElementById('nextQuestionBtn').classList.remove('hidden');
     return;
@@ -990,7 +991,7 @@ function applyScoring(guessYear) {
     lives -= 1;
   }
 
-  feedbackEl.textContent = `Richtiges Jahr: ${actualYear}. Du erhältst ${points} Punkte.`;
+  feedbackEl.textContent = t('messages.correctYearPoints', { year: actualYear, points });
   document.getElementById('submitGuessBtn').classList.add('hidden');
   document.getElementById('nextQuestionBtn').classList.remove('hidden');
   updateScoreboard();
@@ -1005,7 +1006,7 @@ function submitGuess() {
   const input = document.getElementById('guessYearInput').value.trim();
   const guess = parseInt(input, 10);
   if (!input || isNaN(guess)) {
-    document.getElementById('feedback').textContent = 'Bitte eine Jahreszahl eingeben.';
+    document.getElementById('feedback').textContent = t('messages.enterYear');
     return;
   }
   applyScoring(guess);
@@ -1026,7 +1027,7 @@ function startGame() {
   playerScore = 0;
   lives = DEFAULT_LIVES;
   resetRound();
-  document.getElementById('guesssong').textContent = 'Spiel gestartet — viel Erfolg!';
+  document.getElementById('guesssong').textContent = t('messages.gameStarted');
   updateScoreboard();
   getRandomSongForGame();
 }
@@ -1036,13 +1037,13 @@ function stopGame() {
   clearTimer();
   document.getElementById('gameControls').classList.add('hidden');
   document.getElementById('feedback').textContent = '';
-  document.getElementById('guesssong').textContent = 'Spiel beendet.';
+  document.getElementById('guesssong').textContent = t('messages.gameStopped');
 }
 
 function endGame() {
   gameActive = false;
   clearTimer();
-  document.getElementById('feedback').textContent = `Spiel vorbei — Gesamtpunkte: ${playerScore}`;
+  document.getElementById('feedback').textContent = t('messages.gameOverScore', { score: playerScore });
   document.getElementById('gameControls').classList.add('hidden');
 }
 
@@ -1054,28 +1055,28 @@ function toggleMenu() {
 
 // Neues Spiel (nur Runde)
 function confirmNewGame() {
-  const msg = "Runde zurücksetzen?\n\nDadurch werden alle Songs dieser aktuellen Runde zurückgesetzt (der \"Songs gespielt\"-Zähler wird auf 0 gesetzt). Bereits in der Season markierte Songs bleiben erhalten. Dieser Vorgang kann nicht rückgängig gemacht werden.\n\nMöchtest du fortfahren?";
+  const msg = t('messages.confirmNewRound');
   if (confirm(msg)) {
     newGame();
     toggleMenu();
-    showToast('Runde zurückgesetzt');
+    showToast(t('messages.roundReset'));
   }
 }
 
 function newGame() {
   resetRound();
-  document.getElementById("choosesong").textContent = "Neue Runde gestartet – wähle einen Song!";
-  document.getElementById("guesssong").textContent = "Neue Runde gestartet!";
+  document.getElementById("choosesong").textContent = t('messages.newRoundStarted');
+  document.getElementById("guesssong").textContent = t('messages.newRoundStartedGuess');
   updateCounter();
 }
 
 // Neue Season (alles zurücksetzen)
 function confirmNewSeason() {
-  const msg = "Neue Season starten und alle Session-Daten löschen?\n\nDies entfernt alle bisher in dieser Season gespeicherten Songs und setzt sowohl den Runden- als auch den Season-Zähler zurück (gespeicherte Session-Daten in diesem Browser werden gelöscht). Dieser Vorgang kann nicht rückgängig gemacht werden.\n\nMöchtest du fortfahren?";
+  const msg = t('messages.confirmNewSeason');
   if (confirm(msg)) {
     newSeason();
     toggleMenu();
-    showToast('Season zurückgesetzt');
+    showToast(t('messages.seasonReset'));
   }
 }
 
@@ -1186,7 +1187,7 @@ function saveSettings() {
         setSpotifyRedirectUri('');
       }
       // Placeholder Status (Validierung folgt später via spotifyClient)
-      updateConnectionStatus(!!scidVal, scidVal ? 'Spotify konfiguriert' : 'Spotify unvollständig');
+      updateConnectionStatus(!!scidVal, scidVal ? t('messages.spotifyConfigured') : t('messages.spotifyIncomplete'));
       showToast('Einstellungen gespeichert');
     } else {
       // Jellyfin Einstellungen
@@ -1414,10 +1415,10 @@ function renderMpPanelNames() {
     const row = document.createElement('div');
     row.style.display = 'flex'; row.style.gap = '8px'; row.style.alignItems = 'center';
     const label = document.createElement('label');
-    label.textContent = `Spieler ${i+1}:`; label.style.color = '#ccc'; label.style.minWidth = '90px';
+    label.textContent = t('messages.playerLabel', { number: i+1 }); label.style.color = '#ccc'; label.style.minWidth = '90px';
     const input = document.createElement('input');
-    input.type = 'text'; input.placeholder = `Spieler ${i+1}`; input.value = `Spieler ${i+1}`;
-    if (stored[i]) input.value = (typeof stored[i] === 'string') ? stored[i] : (stored[i].name || `Spieler ${i+1}`);
+    input.type = 'text'; input.placeholder = t('messages.playerLabel', { number: i+1 }); input.value = t('messages.playerLabel', { number: i+1 });
+    if (stored[i]) input.value = (typeof stored[i] === 'string') ? stored[i] : (stored[i].name || t('messages.playerLabel', { number: i+1 }));
     input.style.flex = '1'; input.style.padding = '6px'; input.style.background = '#1e1e1e'; input.style.color = '#eee';
     input.style.border = '1px solid #333'; input.style.borderRadius = '6px';
     // Color picker for player
@@ -1425,7 +1426,7 @@ function renderMpPanelNames() {
     color.type = 'color';
     const palette = defaultPlayerColors();
     color.value = (stored[i] && typeof stored[i] !== 'string' && stored[i].color) ? stored[i].color : palette[i % palette.length];
-    color.title = 'Spielerfarbe';
+    color.title = t('common.playerColor');
     color.style.width = '44px';
     color.style.height = '34px';
     color.style.border = '1px solid #333';
@@ -1446,7 +1447,7 @@ function loadMpRoster() {
     const palette = defaultPlayerColors();
     return parsed.map((item, idx) => {
       if (typeof item === 'string') return { name: item, color: palette[idx % palette.length] };
-      return { name: item.name || `Spieler ${idx+1}`, color: item.color || palette[idx % palette.length] };
+      return { name: item.name || t('messages.playerLabel', { number: idx+1 }), color: item.color || palette[idx % palette.length] };
     });
   } catch (e) {
     return null;
@@ -1482,7 +1483,7 @@ function renderRosterSelect() {
   if (!sel) return;
   const all = loadAllRosters();
   const names = Object.keys(all).sort();
-  sel.innerHTML = names.length ? names.map(n => `<option value="${n}">${n}</option>`).join('') : '<option value="">(keine)</option>';
+  sel.innerHTML = names.length ? names.map(n => `<option value="${n}">${n}</option>`).join('') : `<option value="">${t('messages.noRosters')}</option>`;
 }
 function wireRosterManager() {
   const loadBtn = document.getElementById('mpRosterLoadBtn');
@@ -1494,14 +1495,14 @@ function wireRosterManager() {
     const chosen = sel.value.trim(); if (!chosen) return;
     const all = loadAllRosters(); const data = all[chosen]; if (!data) return;
     mpPlayers = data.map((p, idx) => ({ id: idx, name: p.name, color: p.color, deck: [] }));
-    mpCurrentPlayerIndex = 0; renderMpPanelNames(); showToast('Roster geladen');
+    mpCurrentPlayerIndex = 0; renderMpPanelNames(); showToast(t('messages.rosterLoaded'));
   };
   if (delBtn && sel) delBtn.onclick = () => {
     const chosen = sel.value.trim(); if (!chosen) return;
-    const all = loadAllRosters(); delete all[chosen]; saveAllRosters(all); renderRosterSelect(); showToast('Roster gelöscht');
+    const all = loadAllRosters(); delete all[chosen]; saveAllRosters(all); renderRosterSelect(); showToast(t('messages.rosterDeleted'));
   };
   if (saveBtn && nameInput) saveBtn.onclick = () => {
-    const name = nameInput.value.trim(); if (!name) { showToast('Name fehlt'); return; }
+    const name = nameInput.value.trim(); if (!name) { showToast(t('messages.nameMissing')); return; }
     const rows = Array.from(document.querySelectorAll('#mpPanelNames > div'));
     const roster = rows.map((row, idx) => {
       const inputs = Array.from(row.querySelectorAll('input'));
@@ -1511,7 +1512,7 @@ function wireRosterManager() {
       const color = colorInputEl?.value || defaultPlayerColors()[idx % defaultPlayerColors().length];
       return { name: pname, color };
     });
-    const all = loadAllRosters(); all[name] = roster; saveAllRosters(all); renderRosterSelect(); showToast('Roster gespeichert');
+    const all = loadAllRosters(); all[name] = roster; saveAllRosters(all); renderRosterSelect(); showToast(t('messages.rosterSaved'));
   };
 }
 
@@ -1571,12 +1572,12 @@ function showMpStartPanel() {
       <h4 style=\"margin:0 0 0.6em;color:#eee;font-weight:600;\">Rosters</h4>
       <div style=\"display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px;\">
         <select id=\"mpRosterSelect\" style=\"flex:1;min-width:180px;background:#1e1e1e;color:#eee;border:1px solid #333;padding:6px;border-radius:6px;\"></select>
-        <button id=\"mpRosterLoadBtn\" style=\"flex:0 0 auto;\">Laden</button>
-        <button id=\"mpRosterDeleteBtn\" style=\"flex:0 0 auto;background:#402020;border-color:#552020;\">Löschen</button>
+        <button id=\"mpRosterLoadBtn\" style=\"flex:0 0 auto;\">${t('messages.load')}</button>
+        <button id=\"mpRosterDeleteBtn\" style=\"flex:0 0 auto;background:#402020;border-color:#552020;\">${t('messages.delete')}</button>
       </div>
       <div style=\"display:flex;flex-wrap:wrap;gap:8px;align-items:center;\">
-        <input id=\"mpRosterName\" type=\"text\" placeholder=\"Neuer Roster Name\" style=\"flex:1;min-width:160px;background:#1e1e1e;color:#eee;border:1px solid #333;padding:6px;border-radius:6px;\" />
-        <button id=\"mpRosterSaveBtn\" style=\"flex:0 0 auto;\">Speichern</button>
+        <input id=\"mpRosterName\" type=\"text\" placeholder=\"${t('messages.newRosterName')}\" style=\"flex:1;min-width:160px;background:#1e1e1e;color:#eee;border:1px solid #333;padding:6px;border-radius:6px;\" />
+        <button id=\"mpRosterSaveBtn\" style=\"flex:0 0 auto;\">${t('messages.save')}</button>
       </div>`;
     panel.appendChild(rosterWrap);
     renderRosterSelect();

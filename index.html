@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zufälliger Jellyfin Song</title>
+  <title data-i18n="title">Random Jellyfin Song</title>
   <link rel="stylesheet" href="freestyler.css">
   <!-- Spotify Web Playback SDK -->
   <script src="https://sdk.scdn.co/spotify-player.js"></script>
@@ -17,93 +17,90 @@
 <body>
   <!-- Start Screen -->
   <div id="startScreen" class="start-screen">
-    <h2>Willkommen bei HitIT</h2>
-    <p>Wähle einen Spielmodus, um zu beginnen.</p>
+    <h2 data-i18n="start.welcome">Welcome to HitIT</h2>
+    <p data-i18n="start.selectMode">Choose a game mode to begin.</p>
 
     <!-- Singleplayer Sektion -->
     <div class="mode-section">
-      <h3>Singleplayer</h3>
+      <h3 data-i18n="start.singleplayer">Singleplayer</h3>
       <div class="mode-buttons">
-        <button id="startChooseBtn">Zufallswiedergabe</button>
-        <button id="startGuessBtn">Guess-the-Year</button>
+        <button id="startChooseBtn" data-i18n="start.startChoose">Random Playback</button>
+        <button id="startGuessBtn" data-i18n="start.startGuess">Guess-the-Year</button>
       </div>
       <p class="mode-desc">
-        <strong>Song wählen:</strong> Zufälliges Lied nach Genre/Zeitraum auswählen.<br>
-        <strong>Guess-the-Year:</strong> Errate das Erscheinungsjahr, du hast begrenzte Leben.
+        <strong data-i18n="menu.randomPlayback">Random Playback:</strong> <span data-i18n="start.chooseModeDesc">Select a random song by genre/time period.</span><br>
+        <strong data-i18n="menu.guessTheYear">Guess-the-Year:</strong> <span data-i18n="start.guessModeDesc">Guess the release year, you have limited lives.</span>
       </p>
     </div>
 
     <!-- Multiplayer Sektion -->
     <div class="mode-section">
-      <h3>Multiplayer</h3>
+      <h3 data-i18n="start.multiplayer">Multiplayer</h3>
       <div class="mode-buttons">
-        <button id="startMultiplayerPrimaryBtn">Timeline starten</button>
+        <button id="startMultiplayerPrimaryBtn" data-i18n="start.startMultiplayer">Start Timeline</button>
       </div>
-      <p class="mode-desc">
-        Jeder Spieler erhält eine Startkarte. Danach wird ein Lied abgespielt, 
-        und der aktive Spieler muss entscheiden, ob es vor oder nach seiner Karte erschienen ist. 
-        Mit jeder Karte entstehen Zeiträume, die korrekt eingeordnet werden müssen. 
-        Wer zuerst sein Deck voll hat, gewinnt.
+      <p class="mode-desc" data-i18n="start.multiplayerDesc">
+        Each player receives a starting card. Then a song is played, and the active player must decide whether it was released before or after their card. With each card, time periods are created that must be correctly placed. The first to fill their deck wins.
       </p>
     </div>
   </div>
 
   <!-- Multiplayer Start Panel (configure before starting) -->
   <div id="mpStartPanel" class="hidden mp-setup-panel">
-    <h3>Multiplayer Setup</h3>
-    <label>Spieleranzahl:
+    <h3 data-i18n="mpSetup.title">Multiplayer Setup</h3>
+    <label><span data-i18n="mpSetup.playerCount">Number of players</span>:
       <input id="mpPanelPlayerCount" type="number" min="2" max="6" value="2">
     </label>
-    <label>Ziel-Deckgröße:
+    <label><span data-i18n="mpSetup.targetDeckSize">Target deck size</span>:
       <input id="mpPanelTargetSize" type="number" min="1" max="50" value="10">
     </label>
-    <label>Genre (optional):
-      <input id="mpPanelGenre" type="text" placeholder="z.B. Rock">
+    <label><span data-i18n="mpSetup.genre">Genre (optional)</span>:
+      <input id="mpPanelGenre" type="text" data-i18n-attr="placeholder" placeholder="e.g., Rock">
     </label>
     <div class="mp-year-inputs">
-      <label>Min Jahr:
-        <input id="mpPanelMinYear" type="number" min="1900" max="2100" placeholder="1900">
+      <label><span data-i18n="mpSetup.minYear">Min year</span>:
+        <input id="mpPanelMinYear" type="number" min="1900" max="2100" data-i18n-attr="placeholder" placeholder="1900">
       </label>
-      <label>Max Jahr:
-        <input id="mpPanelMaxYear" type="number" min="1900" max="2100" placeholder="heute">
+      <label><span data-i18n="mpSetup.maxYear">Max year</span>:
+        <input id="mpPanelMaxYear" type="number" min="1900" max="2100" data-i18n-attr="placeholder" placeholder="today">
       </label>
     </div>
     <div id="mpPanelNames">
       <!-- name inputs rendered here -->
     </div>
     <div class="mp-button-group">
-      <button id="mpPanelStartBtn">Spiel starten</button>
-      <button id="mpPanelCancelBtn">Abbrechen</button>
+      <button id="mpPanelStartBtn" data-i18n="mpSetup.startGame">Start game</button>
+      <button id="mpPanelCancelBtn" data-i18n="mpSetup.cancel">Cancel</button>
     </div>
   </div>
 
   <!-- Guess-the-Year Setup Panel -->
   <div id="guessStartPanel" class="hidden mp-setup-panel">
-    <h3>Guess-the-Year Setup</h3>
+    <h3 data-i18n="guessSetup.title">Guess-the-Year Setup</h3>
     <label>
       <input id="guessPanelTimerEnabled" type="checkbox">
-      Timer aktivieren
+      <span data-i18n="guessSetup.timerEnabled">Enable timer</span>
     </label>
-    <label id="guessPanelTimerDurationLabel">Timer-Dauer (Sekunden):
+    <label id="guessPanelTimerDurationLabel"><span data-i18n="guessSetup.timerDuration">Timer duration (seconds)</span>:
       <input id="guessPanelTimerDuration" type="number" min="5" max="120" value="30">
     </label>
-    <label>Leben:
+    <label><span data-i18n="guessSetup.lives">Lives</span>:
       <input id="guessPanelLives" type="number" min="1" max="10" value="3">
     </label>
-    <label>Genre (optional):
-      <input id="guessPanelGenre" type="text" placeholder="z.B. Rock">
+    <label><span data-i18n="guessSetup.genre">Genre (optional)</span>:
+      <input id="guessPanelGenre" type="text" data-i18n-attr="placeholder" placeholder="e.g., Rock">
     </label>
     <div class="mp-year-inputs">
-      <label>Min Jahr:
-        <input id="guessPanelMinYear" type="number" min="1900" max="2100" placeholder="1900">
+      <label><span data-i18n="guessSetup.minYear">Min year</span>:
+        <input id="guessPanelMinYear" type="number" min="1900" max="2100" data-i18n-attr="placeholder" placeholder="1900">
       </label>
-      <label>Max Jahr:
-        <input id="guessPanelMaxYear" type="number" min="1900" max="2100" placeholder="heute">
+      <label><span data-i18n="guessSetup.maxYear">Max year</span>:
+        <input id="guessPanelMaxYear" type="number" min="1900" max="2100" data-i18n-attr="placeholder" placeholder="today">
       </label>
     </div>
     <div class="mp-button-group">
-      <button id="guessPanelStartBtn">Spiel starten</button>
-      <button id="guessPanelCancelBtn">Abbrechen</button>
+      <button id="guessPanelStartBtn" data-i18n="guessSetup.startGame">Start game</button>
+      <button id="guessPanelCancelBtn" data-i18n="guessSetup.cancel">Cancel</button>
     </div>
   </div>
 
@@ -112,57 +109,63 @@
   <nav id="menu" class="menu">
     <div class="menu-nav">
       <ul>
-        <li><button id="modeChooseSongBtn" class="menu-mode mode-choose">Zufallswiedergabe</button></li>
-        <li><button id="modeGuessBtn" class="menu-mode mode-guess">Guess-the-Year</button></li>
-        <li><button id="modeMultiplayerBtn" class="menu-mode mode-multiplayer">Multiplayer</button></li>
-        <li><button id="resetRoundBtn" class="menu-reset">Reset Round</button></li>
-        <li><button id="resetSeasonBtn" class="menu-reset">Reset Season</button></li>
+        <li><button id="modeChooseSongBtn" class="menu-mode mode-choose" data-i18n="menu.randomPlayback">Random Playback</button></li>
+        <li><button id="modeGuessBtn" class="menu-mode mode-guess" data-i18n="menu.guessTheYear">Guess-the-Year</button></li>
+        <li><button id="modeMultiplayerBtn" class="menu-mode mode-multiplayer" data-i18n="menu.multiplayer">Multiplayer</button></li>
+        <li><button id="resetRoundBtn" class="menu-reset" data-i18n="menu.resetRound">Reset Round</button></li>
+        <li><button id="resetSeasonBtn" class="menu-reset" data-i18n="menu.resetSeason">Reset Season</button></li>
       </ul>
     </div>
     <!-- footer area holds admin/settings and actions; stays at end of menu -->
     <div class="menu-footer">
-      <button id="settingsBtn" class="menu-admin">Settings</button>
+      <button id="settingsBtn" class="menu-admin" data-i18n="menu.settings">Settings</button>
       <!-- Settings moved inside the hamburger menu so it doesn't block the game area -->
       <div id="settings" class="settings hidden" style="padding:1em;margin-top:10px;">
-        <h2 style="margin-top:0;color:#eee;">Einstellungen</h2>
-        <label style="display:block;margin:0.6em 0;color:#ccc;">Musikquelle:
+        <h2 style="margin-top:0;color:#eee;" data-i18n="settings.title">Settings</h2>
+        <label style="display:block;margin:0.6em 0;color:#ccc;"><span data-i18n="settings.language">Language</span>:
+          <select id="settingLanguage" style="width:100%;margin-top:0.4em;background:#1e1e1e;color:#eee;border:1px solid #333;padding:6px;border-radius:4px;">
+            <option value="en">English</option>
+            <option value="de">Deutsch</option>
+          </select>
+        </label>
+        <label style="display:block;margin:0.6em 0;color:#ccc;"><span data-i18n="settings.musicSource">Music source</span>:
           <select id="settingMusicSource" style="width:100%;margin-top:0.4em;background:#1e1e1e;color:#eee;border:1px solid #333;padding:6px;border-radius:4px;">
             <option value="jellyfin">Jellyfin</option>
             <option value="spotify">Spotify</option>
           </select>
         </label>
         <div id="jellyfinSettingsGroup">
-          <label style="display:block;margin:0.6em 0;color:#ccc;">Jellyfin Server URL:
+          <label style="display:block;margin:0.6em 0;color:#ccc;"><span data-i18n="settings.jellyfinServer">Jellyfin Server URL</span>:
             <input type="text" id="settingServer" placeholder="https://jellyfin.example.com" style="width:100%;margin-top:0.4em;">
           </label>
-          <label style="display:block;margin:0.6em 0;color:#ccc;">Library ID (ParentId):
+          <label style="display:block;margin:0.6em 0;color:#ccc;"><span data-i18n="settings.libraryId">Library ID (ParentId)</span>:
             <input type="text" id="settingLibraryId" placeholder="Library/Folder ID" style="width:100%;margin-top:0.4em;">
           </label>
-          <label style="display:block;margin:0.6em 0;color:#ccc;">API Key:
+          <label style="display:block;margin:0.6em 0;color:#ccc;"><span data-i18n="settings.apiKey">API Key</span>:
             <input type="password" id="settingApiKey" placeholder="Jellyfin API Key" style="width:100%;margin-top:0.4em;">
           </label>
         </div>
         <div id="spotifySettingsGroup" class="hidden">
-          <label style="display:block;margin:0.6em 0;color:#ccc;">Spotify Client ID (öffentlich):
+          <label style="display:block;margin:0.6em 0;color:#ccc;"><span data-i18n="settings.spotifyClientId">Spotify Client ID (public)</span>:
             <input type="text" id="settingSpotifyClientId" placeholder="Spotify Client ID" style="width:100%;margin-top:0.4em;">
           </label>
-          <label style="display:block;margin:0.6em 0;color:#ccc;">Redirect URI:
+          <label style="display:block;margin:0.6em 0;color:#ccc;"><span data-i18n="settings.redirectUri">Redirect URI</span>:
             <input type="text" id="settingSpotifyRedirect" placeholder="https://hitit.plll6.de/ oder http://127.0.0.1:8888/" style="width:100%;margin-top:0.4em;">
           </label>
-          <div style="color:#777;font-size:0.75em;line-height:1.3;margin-bottom:0.6em;">Hinweis: OAuth erfolgt per PKCE Flow. Keine Secrets hier speichern. Redirect URI muss in Spotify App Settings registriert sein.</div>
-          <button id="spotifyAuthBtn" style="width:100%;background:#1db954;color:#fff;padding:8px;border:none;border-radius:6px;font-weight:600;cursor:pointer;">Mit Spotify verbinden</button>
+          <div style="color:#777;font-size:0.75em;line-height:1.3;margin-bottom:0.6em;" data-i18n="settings.spotifyNote">Note: OAuth via PKCE flow. Do not store secrets here. Redirect URI must be registered in Spotify App Settings.</div>
+          <button id="spotifyAuthBtn" style="width:100%;background:#1db954;color:#fff;padding:8px;border:none;border-radius:6px;font-weight:600;cursor:pointer;" data-i18n="settings.connectSpotify">Connect with Spotify</button>
         </div>
-        <div id="connectionStatus" style="margin:0.4em 0;font-size:0.85em;color:#bbb;">Status: <span id="connectionStatusValue">Nicht verbunden</span></div>
-        <div class="settings-note" style="color:#999;font-size:0.9em;margin-top:0.6em;">Daten werden lokal gespeichert. Spotify-Unterstützung (Beta) aktiviert.</div>
+        <div id="connectionStatus" style="margin:0.4em 0;font-size:0.85em;color:#bbb;"><span data-i18n="settings.connectionStatus">Status</span>: <span id="connectionStatusValue" data-i18n="settings.statusNotConnected">Not connected</span></div>
+        <div class="settings-note" style="color:#999;font-size:0.9em;margin-top:0.6em;" data-i18n="settings.dataNote">Data is stored locally. Spotify support (Beta) enabled.</div>
           <div id="lastfmSettingsGroup" style="margin-top:1.2em;">
-            <label style="display:block;margin:0.6em 0;color:#ccc;">Last.fm API Key (optional):
+            <label style="display:block;margin:0.6em 0;color:#ccc;"><span data-i18n="settings.lastfmApiKey">Last.fm API Key (optional)</span>:
               <input type="text" id="settingLastfmApiKey" placeholder="Last.fm API Key" style="width:100%;margin-top:0.4em;">
             </label>
-            <div style="color:#777;font-size:0.75em;line-height:1.3;margin-bottom:0.6em;">Optional: Für Metadaten, Cover und Songtexte. <a href="https://www.last.fm/api/account/create" target="_blank" style="color:#1db954;">API Key hier erstellen</a>. Kein Login nötig.</div>
+            <div style="color:#777;font-size:0.75em;line-height:1.3;margin-bottom:0.6em;"><span data-i18n="settings.lastfmNote">Optional: For metadata, covers, and lyrics.</span> <a href="https://www.last.fm/api/account/create" target="_blank" style="color:#1db954;" data-i18n="settings.lastfmCreate">Create API key here</a>. <span data-i18n="settings.lastfmNoLogin">No login required.</span></div>
           </div>
         <div style="display:flex;gap:8px;margin-top:8px;">
-          <button id="saveSettingsBtn">Speichern</button>
-          <button id="cancelSettingsBtn">Abbrechen</button>
+          <button id="saveSettingsBtn" data-i18n="settings.save">Save</button>
+          <button id="cancelSettingsBtn" data-i18n="settings.cancel">Cancel</button>
         </div>
       </div>
     </div>
@@ -170,101 +173,101 @@
 
   <!-- SONG WÄHLEN -->
   <div id="chooseArea" class="choose-area hidden">
-    <h2>🎶 Zufallswiedergabe</h2>
+    <h2 data-i18n="choose.title">🎶 Random Playback</h2>
 
     <!-- Filter Toggle Button -->
     <div id="filterToggleContainer" class="filter-toggle-container">
-      <button id="filterToggleBtn" class="filter-toggle">Filter anzeigen/verstecken</button>
+      <button id="filterToggleBtn" class="filter-toggle" data-i18n="choose.filterToggle">Show/Hide Filters</button>
     </div>
 
     <!-- Filterbereich -->
     <div id="filters" class="filters">
-      <label>Genre:
-        <input type="text" id="genre" placeholder="z.B. Game">
+      <label><span data-i18n="choose.genre">Genre</span>:
+        <input type="text" id="genre" data-i18n-attr="placeholder" placeholder="e.g., Game">
       </label>
-      <label>Min. Jahr:
-        <input type="number" id="minYear" placeholder="1996">
+      <label><span data-i18n="choose.minYear">Min year</span>:
+        <input type="number" id="minYear" data-i18n-attr="placeholder" placeholder="1996">
       </label>
-      <label>Max. Jahr:
-        <input type="number" id="maxYear" placeholder="1999">
+      <label><span data-i18n="choose.maxYear">Max year</span>:
+        <input type="number" id="maxYear" data-i18n-attr="placeholder" placeholder="1999">
       </label>
-      <label>Artist:
-        <input type="text" id="artistFilter" placeholder="z.B. Depeche Mode">
+      <label><span data-i18n="choose.artist">Artist</span>:
+        <input type="text" id="artistFilter" data-i18n-attr="placeholder" placeholder="e.g., Depeche Mode">
       </label>
     </div>
 
     <!-- Song auswählen bleibt sichtbar -->
     <div id="songButtonContainer" class="song-button-container">
-      <button id="selectSongBtn">Song abspielen</button>
+      <button id="selectSongBtn" data-i18n="choose.selectSong">Play song</button>
     </div>
 
     <!-- Songanzeige -->
     <div id="choosesong" class="song hidden"></div>
-    <div id="choosecounter" class="counter hidden">Songs gespielt: 0</div>
+    <div id="choosecounter" class="counter hidden"><span data-i18n="choose.songsPlayed">Songs played</span>: 0</div>
   </div>
 
   <!-- GUESS-THE-YEAR -->
   <div id="gameArea" class="game-area hidden">
-    <h2>🧠 Guess-the-Year</h2>
+    <h2 data-i18n="guess.title">🧠 Guess-the-Year</h2>
 
     <!-- Songanzeige -->
     <div id="guesssong" class="song hidden"></div>
 
     <!-- Scoreboard -->
     <div id="scoreboard">
-      <span id="scoreDisplay">Punkte: 0</span> • 
-      <span id="livesDisplay">Leben: 3</span> • 
-      <span id="timerDisplay">Zeit: 0</span>
+      <span id="scoreDisplay"><span data-i18n="guess.points">Points</span>: 0</span> • 
+      <span id="livesDisplay"><span data-i18n="guess.lives">Lives</span>: 3</span> • 
+      <span id="timerDisplay"><span data-i18n="guess.time">Time</span>: 0</span>
     </div>
 
     <!-- Controls -->
     <div id="gameControls" class="game-controls hidden">
-      <label>Jahreszahl raten:
-        <input id="guessYearInput" type="number" placeholder="z.B. 1998">
+      <label><span data-i18n="guess.guessYear">Guess the year</span>:
+        <input id="guessYearInput" type="number" data-i18n-attr="placeholder" placeholder="e.g., 1998">
       </label>
       <div style="display:flex;gap:8px;">
-        <button id="submitGuessBtn">Antwort prüfen</button>
-        <button id="nextQuestionBtn" class="hidden">Nächstes</button>
-        <button id="stopGameBtn">Spiel beenden</button>
+        <button id="submitGuessBtn" data-i18n="guess.submit">Check answer</button>
+        <button id="nextQuestionBtn" class="hidden" data-i18n="guess.next">Next</button>
+        <button id="stopGameBtn" data-i18n="guess.stopGame">End game</button>
       </div>
       <div id="feedback"></div>
     </div>
 
-    <div id="guesscounter" class="counter hidden">Songs gespielt: 0</div>
+    <div id="guesscounter" class="counter hidden"><span data-i18n="guess.songsPlayed">Songs played</span>: 0</div>
   </div>
 
   <!-- Multiplayer area -->
   <div id="multiplayerArea" class="multiplayer-area hidden">
     <div id="mpTopPanel" style="text-align:center;">
-      <div id="mpTopName" style="font-size:1.4rem;font-weight:700;color:#fff;">Spieler 1</div>
-      <div id="mpTopSub" style="font-size:0.9rem;color:#bbb;">Aktiver Spieler</div>
+      <div id="mpTopName" style="font-size:1.4rem;font-weight:700;color:#fff;">Player 1</div>
+      <div id="mpTopSub" style="font-size:0.9rem;color:#bbb;" data-i18n="multiplayer.activePlayer">Active player</div>
     </div>
     <div id="mpPlayerPanel" style="width:100%;display:flex;align-items:stretch;justify-content:center;">
       <!-- swipe container: Deck | Drawn Card | Leaderboard -->
       <div id="mpSwipe" style="display:flex;overflow-x:auto;scroll-snap-type:x mandatory;">
         <section class="mpPanel" id="mpDeck" style="background:#222;border:2px solid #333;padding:1em;border-radius:6px;color:#ddd;">
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <h4 id="mpDeckHeader" style="margin:0;color:#fff;">Deck</h4>
+            <h4 id="mpDeckHeader" style="margin:0;color:#fff;" data-i18n="multiplayer.deck">Deck</h4>
             <div id="mpDeckSize" style="font-size:1.1rem;font-weight:700;color:#fff;">0</div>
           </div>
           <hr style="border:0;border-top:1px solid #2a2a2a;margin:8px 0;">
-          <div id="mpDeckList">(keine Karten)</div>
+          <div id="mpDeckList" data-i18n="multiplayer.noCards">(no cards)</div>
         </section>
 
         <section class="mpPanel" id="mpDrawn" style="background:#222;border:2px solid #333;padding:1em;border-radius:6px;color:#ddd;">
-          <h4 style="margin-top:0;color:#fff;">Gezogene Karte</h4>
-          <div id="mpDrawnCard">(keine Karte)</div>
+          <h4 style="margin-top:0;color:#fff;" data-i18n="multiplayer.drawnCard">Drawn card</h4>
+          <div id="mpDrawnCard" data-i18n="multiplayer.noCard">(no card)</div>
           <div id="mpIntervals" style="margin-top:0.8em;"></div>
         </section>
 
         <section class="mpPanel" id="mpLeaderboardPanel" style="background:#121212;border:2px solid #222;padding:1em;border-radius:6px;color:#ddd;">
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <h4 style="margin:0;color:#fff;">Leaderboard</h4>
+            <h4 style="margin:0;color:#fff;" data-i18n="multiplayer.leaderboard">Leaderboard</h4>
             <div>
-              <button id="clearLeaderboardBtn" style="background:#331111;border:1px solid #441111;color:#fff;padding:6px;border-radius:4px;">Clear</button>
+              <button id="clearLeaderboardBtn" style="background:#331111;border:1px solid #441111;color:#fff;padding:6px;border-radius:4px;" data-i18n="multiplayer.clear">Clear</button>
             </div>
           </div>
-          <div id="mpLeaderboardList" style="margin-top:8px;color:#ccc;">(leer)</div>
+          <div id="mpLeaderboardList" style="margin-top:8px;color:#ccc;" data-i18n="multiplayer.empty">(empty)</div>
         </section>
       </div>
     </div>
@@ -272,6 +275,21 @@
 
   <!-- Umstellung auf ES Module für schrittweise Modularisierung -->
   <!-- Spotify SDK Callback wird von spotifyPlayer.js gesetzt (nach Auth) -->
+  
+  <!-- Initialize i18n before loading app -->
+  <script type="module">
+    import { initI18n, setLanguage } from './src/i18n/i18n.js';
+    import en from './src/i18n/locales/en.js';
+    import de from './src/i18n/locales/de.js';
+    
+    // Initialize with available languages
+    initI18n({ en, de });
+    
+    // Listen for language changes to update dynamic content
+    window.addEventListener('languagechange', (e) => {
+      console.log('Language changed to:', e.detail.language);
+    });
+  </script>
   
   <!-- Beide Skripte als Module laden -->
   <script type="module" src="app.js"></script>

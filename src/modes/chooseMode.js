@@ -3,13 +3,14 @@ import { fetchRandomMusic } from '../services/musicService.js';
 import { filterSongs, pickRandomSong, enrichSongWithLastfm } from '../services/songService.js';
 import { markSongUsed, state } from '../state/gameState.js';
 import { server, apiKey, musicSource } from '../config.js';
+import { t } from '../i18n/i18n.js';
 
 // Helper: Update counter display
 function updateCounter() {
   const chooseCounter = document.getElementById('choosecounter');
   const guessCounter = document.getElementById('guesscounter');
-  if (chooseCounter) chooseCounter.textContent = `Songs gespielt: ${state.roundCounter}`;
-  if (guessCounter) guessCounter.textContent = `Songs gespielt: ${state.roundCounter}`;
+  if (chooseCounter) chooseCounter.innerHTML = `${t('choose.songsPlayed')}: ${state.roundCounter}`;
+  if (guessCounter) guessCounter.innerHTML = `${t('guess.songsPlayed')}: ${state.roundCounter}`;
 }
 
 export async function getRandomSong() {
@@ -34,7 +35,7 @@ export async function getRandomSong() {
     attempts++;
   }
   const container = document.getElementById('choosesong');
-  if (!song) { if (container) { container.classList.remove('hidden'); container.textContent='Kein neuer Song gefunden.'; } return; }
+  if (!song) { if (container) { container.classList.remove('hidden'); container.textContent=t('messages.noSongFound'); } return; }
   markSongUsed(song.Id);
   
   // Filter einklappen
@@ -43,13 +44,13 @@ export async function getRandomSong() {
     filtersEl.classList.add('hidden');
   }
   
-  const year = song.ProductionYear || (song.PremiereDate ? new Date(song.PremiereDate).getFullYear() : 'Unbekannt');
+  const year = song.ProductionYear || (song.PremiereDate ? new Date(song.PremiereDate).getFullYear() : t('common.unknown'));
   // Last.fm-Metadaten asynchron nachladen (füllt ggf. Genres via Tags)
   const enriched = await enrichSongWithLastfm(song);
   const lastfmData = enriched.lastfmData;
   const displayGenres = (enriched.Genres && enriched.Genres.length)
     ? enriched.Genres.join(', ')
-    : (lastfmData?.tags?.length ? lastfmData.tags.slice(0,5).join(', ') : 'Unbekannt');
+    : (lastfmData?.tags?.length ? lastfmData.tags.slice(0,5).join(', ') : t('common.unknown'));
   let coverHtml = '';
   // Cover-Priorität: Last.fm → Spotify → Jellyfin
   let coverUrl = null;
@@ -70,21 +71,21 @@ export async function getRandomSong() {
   }
   if (coverUrl) coverHtml = `<img src="${coverUrl}" alt="Cover" class="lastfm-cover">`;
   let tagsHtml = '';
-  if (lastfmData?.tags?.length) tagsHtml = `<div><span class="label">Tags (Last.fm):</span> ${lastfmData.tags.join(', ')}</div>`;
+  if (lastfmData?.tags?.length) tagsHtml = `<div><span class="label">${t('common.tags')} (Last.fm):</span> ${lastfmData.tags.join(', ')}</div>`;
   let lyricsHtml = '';
-  if (lastfmData?.lyrics) lyricsHtml = `<details><summary>Songtext (Last.fm)</summary><pre class="lastfm-lyrics">${lastfmData.lyrics}</pre></details>`;
+  if (lastfmData?.lyrics) lyricsHtml = `<details><summary>${t('common.lyrics')} (Last.fm)</summary><pre class="lastfm-lyrics">${lastfmData.lyrics}</pre></details>`;
   if (container) {
     container.classList.remove('hidden');
     container.innerHTML = `
       ${coverHtml}
-      <div><span class="label">Titel:</span> ${song.Name}</div>
-      <div><span class="label">Artist:</span> ${song.AlbumArtists?.[0]?.Name || song.Artists?.[0] || '?'}</div>
-      <div><span class="label">Album:</span> ${song.Album || 'Unbekannt'}</div>
-      <div><span class="label">Jahr:</span> ${year}</div>
-      <div><span class="label">Genre:</span> ${displayGenres}</div>
+      <div><span class="label">${t('common.title')}:</span> ${song.Name}</div>
+      <div><span class="label">${t('common.artist')}:</span> ${song.AlbumArtists?.[0]?.Name || song.Artists?.[0] || '?'}</div>
+      <div><span class="label">${t('common.album')}:</span> ${song.Album || t('common.unknown')}</div>
+      <div><span class="label">${t('common.year')}:</span> ${year}</div>
+      <div><span class="label">${t('common.genre')}:</span> ${displayGenres}</div>
       ${tagsHtml}
       ${lyricsHtml}
-      <div id="rndAudioContainer">Lädt Playback...</div>`;
+      <div id="rndAudioContainer">${t('common.loadingPlayback')}</div>`;
   }
   if (musicSource === 'spotify') {
     try {
@@ -96,8 +97,8 @@ export async function getRandomSong() {
         try {
           await playerModule.playTrack(song.SpotifyUri);
           document.getElementById('rndAudioContainer').innerHTML = `<div class="premium-badge" id="rndPremiumBadge">
-            <span class="premium-indicator">Spotify Premium</span>
-            <button id="rndPauseBtn" class="premium-toggle">Pause</button>
+            <span class="premium-indicator">${t('common.spotifyPremium')}</span>
+            <button id="rndPauseBtn" class="premium-toggle">${t('common.pause')}</button>
           </div>`;
           const pauseBtn = document.getElementById('rndPauseBtn');
           let progressInterval = null;
